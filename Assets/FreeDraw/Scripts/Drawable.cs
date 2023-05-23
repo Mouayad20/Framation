@@ -403,8 +403,8 @@ namespace FreeDraw
                     for (int k = 0 ; k < contours[0].Length  ; k++){
                         points.Add(
                             new Vector2(
-                                ((  contours[0][k].X - center_x) / 100 ) + 0.05f ,
-                                (( -contours[0][k].Y - center_y) / 100 ) + 0.05f
+                                ((  contours[0][k].X - center_x ) / 100 ) + 0.05f ,
+                                (( -contours[0][k].Y - center_y ) / 100 ) + 0.05f
                                 )
                             );
                     }
@@ -423,7 +423,7 @@ namespace FreeDraw
 
 
                 // Optionally, you can save the bytes to a file
-                System.IO.File.WriteAllBytes("C:/Users/HP/Downloads/Compressed/trianglation/Assets/OpenCV+Unity/Demo/Identifiy_Contours_by_Shape/someshapes.jpg", bytes);
+                // System.IO.File.WriteAllBytes("C:/Users/HP/Downloads/Compressed/trianglation/Assets/OpenCV+Unity/Demo/Identifiy_Contours_by_Shape/someshapes.jpg", bytes);
 
                 // Destroy the temporary Texture2D object
                 Destroy(texture);
