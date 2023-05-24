@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using FreeDraw;
 
 public class PenTool : MonoBehaviour
 {
@@ -30,14 +31,16 @@ public class PenTool : MonoBehaviour
     bool move ;
 
     private void Start(){
-        penCanvas.OnPenCanvasLeftClickEvent += AddDot;
-        lines     = new List <LineController>();
-        linesTemp = new List <LineController>();
-        skeletons = new List<List<LineController>>();
-        counter     = 0 ;
-        pupId       = 0 ;
-        lineCounter = 0 ;
-        move = false;
+        
+            penCanvas.OnPenCanvasLeftClickEvent += AddDot;
+            lines     = new List <LineController>();
+            linesTemp = new List <LineController>();
+            skeletons = new List<List<LineController>>();
+            counter     = 0 ;
+            pupId       = 0 ;
+            lineCounter = 0 ;
+            move = false;
+
     }
 
     private void Update(){
@@ -78,6 +81,8 @@ public class PenTool : MonoBehaviour
             move = false;
         }
 
+        
+
         if(Input.GetKeyDown(KeyCode.K)){
             print("KKKKKKKKKKKKKKKKKKKKKKKKKKKKK");
             linesTemp = new List<LineController>(lines);
@@ -91,47 +96,49 @@ public class PenTool : MonoBehaviour
         }
     }
 
-    private void AddDot() {
-        if(counter == 0 ) {
-            DotController dot = Instantiate(dotPrefab , GetMousePosition(), Quaternion.identity, dotParent).GetComponent<DotController>();
-            dot.onDragEvent += MoveDot;
-            dot.OnLeftClickEvent += SelectDot;
-            dot.OnRightClickEvent += UnSelectDot;
-            prevDot = dot;
-            counter = counter + 1;
-        } 
-        else if (selectDot && prevDot != null ) {
-            DotController newDot = Instantiate(dotPrefab , GetMousePosition(), Quaternion.identity, dotParent).GetComponent<DotController>();
-            newDot.onDragEvent += MoveDot;
-            newDot.OnLeftClickEvent += SelectDot;
-            newDot.OnRightClickEvent += UnSelectDot;
-            LineController line =  Instantiate (lineprefab , Vector3.zero , Quaternion.identity , lineParent).GetComponent<LineController>(); 
-            line.id = lineCounter  ;  
-            line.SetStart(prevDot,prevDot.id) ;
-            pupId = pupId + 1 ;
-            line.SetEnd(newDot , pupId) ;
-            lines.Add(line);
-            prevDot = newDot;
-            counter = counter + 1;
-            lineCounter = lineCounter + 1;
-            selectDot = false;
-        }
-        else if ( counter > 0 && prevDot != null ) {
-            DotController newDot = Instantiate(dotPrefab  , GetMousePosition(), Quaternion.identity, dotParent).GetComponent<DotController>();
-            newDot.onDragEvent += MoveDot;
-            newDot.OnLeftClickEvent += SelectDot;
-            newDot.OnRightClickEvent += UnSelectDot;
-            LineController line =  Instantiate(lineprefab , Vector3.zero , Quaternion.identity , lineParent).GetComponent<LineController>(); 
-            line.id = lineCounter   ;
-            line.SetStart(prevDot,pupId);
-            pupId = pupId + 1 ;
-            line.SetEnd(newDot , pupId) ;
-            lines.Add(line);
-            prevDot = newDot;
-            counter = counter + 1;
-            lineCounter = lineCounter + 1;
-        }else{
-            print("please select dot before!! ");
+    private void AddDot() {   
+        if (!Drawable.isDrawing){
+            if(counter == 0 ) {
+                DotController dot = Instantiate(dotPrefab , GetMousePosition(), Quaternion.identity, dotParent).GetComponent<DotController>();
+                dot.onDragEvent += MoveDot;
+               dot.OnLeftClickEvent += SelectDot;
+                dot.OnRightClickEvent += UnSelectDot;
+                prevDot = dot;
+                counter = counter + 1;
+            } 
+            else if (selectDot && prevDot != null ) {
+                DotController newDot = Instantiate(dotPrefab , GetMousePosition(), Quaternion.identity, dotParent).GetComponent<DotController>();
+                newDot.onDragEvent += MoveDot;
+                newDot.OnLeftClickEvent += SelectDot;
+                newDot.OnRightClickEvent += UnSelectDot;
+                LineController line =  Instantiate (lineprefab , Vector3.zero , Quaternion.identity , lineParent).GetComponent<LineController>(); 
+                line.id = lineCounter  ;  
+                line.SetStart(prevDot,prevDot.id) ;
+                pupId = pupId + 1 ;
+                line.SetEnd(newDot , pupId) ;
+                lines.Add(line);
+                prevDot = newDot;
+                counter = counter + 1;
+                lineCounter = lineCounter + 1;
+                selectDot = false;
+            }
+            else if ( counter > 0 && prevDot != null ) {
+                DotController newDot = Instantiate(dotPrefab  , GetMousePosition(), Quaternion.identity, dotParent).GetComponent<DotController>();
+                newDot.onDragEvent += MoveDot;
+                newDot.OnLeftClickEvent += SelectDot;
+                newDot.OnRightClickEvent += UnSelectDot;
+                LineController line =  Instantiate(lineprefab , Vector3.zero , Quaternion.identity , lineParent).GetComponent<LineController>(); 
+                line.id = lineCounter   ;
+                line.SetStart(prevDot,pupId);
+                pupId = pupId + 1 ;
+                line.SetEnd(newDot , pupId) ;
+                lines.Add(line);
+                prevDot = newDot;
+                counter = counter + 1;
+                lineCounter = lineCounter + 1;
+            }else{
+                print("please select dot before!! ");
+            }
         }
     }
 
@@ -141,7 +148,7 @@ public class PenTool : MonoBehaviour
     }
 
     private void SelectDot(DotController selectedDot) {
-        print("Selected dot id : " +  selectedDot.id);
+        print("Selected dot id  : " +  selectedDot.id);
         prevDot   = selectedDot;
         dot       = selectedDot;
         selectDot = true;

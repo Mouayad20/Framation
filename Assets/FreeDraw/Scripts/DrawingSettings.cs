@@ -59,12 +59,12 @@ namespace FreeDraw
         }
         public void SetEraser()
         {
-            SetMarkerColour(new Color(0, 0, 0, 0f));
+            SetMarkerColour(new Color(1, 1, 1, 1));
         }
 
         public void PartialSetEraser()
         {
-            SetMarkerColour(new Color(0, 0, 0, 0.5f));
+            SetMarkerColour(new Color(1, 1, 1, 1));
         }
     }
 }

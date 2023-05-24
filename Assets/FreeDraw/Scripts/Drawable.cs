@@ -24,14 +24,12 @@ namespace FreeDraw
 
         [SerializeField] GameObject prefab;
         List<Vector2> points = new List<Vector2>() ;
-
-
+        public static bool isDrawing = true ;
 
         // PEN COLOUR
         public static Color Pen_Colour = Color.red;     // Change these to change the default drawing settings
         // PEN WIDTH (actually, it's a radius, in pixels)
         public static int Pen_Width = 3;
-
 
         public delegate void Brush_Function(Vector2 world_position);
         // This is the function called when a left click happens
@@ -47,8 +45,6 @@ namespace FreeDraw
 
         // Used to reference THIS specific file without making all methods static
         public static Drawable drawable;
-        public GameObject source;
-        public GameObject dist;
         // MUST HAVE READ/WRITE enabled set in the file editor of Unity
         Sprite drawable_sprite;
         Texture2D drawable_texture;
@@ -146,46 +142,49 @@ namespace FreeDraw
         void Update()
         {
 
-
-            
-            if (Input.GetKeyDown(KeyCode.D)){
+            if(Input.GetKeyDown(KeyCode.G)){
+                isDrawing = !isDrawing;
                 ConvertSpriteToImage();
-            }    
-            // Is the user holding down the left mouse button?
-            bool mouse_held_down = Input.GetMouseButton(0);
-            if (mouse_held_down && !no_drawing_on_current_drag)
-            {
-                // Convert mouse coordinates to world coordinates
-                Vector2 mouse_world_position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
-                // Check if the current mouse position overlaps our image
-                Collider2D hit = Physics2D.OverlapPoint(mouse_world_position, Drawing_Layers.value);
-                if (hit != null && hit.transform != null)
+            }
+            
+            if(isDrawing){
+                   
+                // Is the user holding down the left mouse button?
+                bool mouse_held_down = Input.GetMouseButton(0);
+                if (mouse_held_down && !no_drawing_on_current_drag)
                 {
-                    // We're over the texture we're drawing on!
-                    // Use whatever function the current brush is
-                    current_brush(mouse_world_position);
-                }
+                    // Convert mouse coordinates to world coordinates
+                    Vector2 mouse_world_position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-                else
-                {
-                    // We're not over our destination texture
-                    previous_drag_position = Vector2.zero;
-                    if (!mouse_was_previously_held_down)
+                    // Check if the current mouse position overlaps our image
+                    Collider2D hit = Physics2D.OverlapPoint(mouse_world_position, Drawing_Layers.value);
+                    if (hit != null && hit.transform != null)
                     {
-                        // This is a new drag where the user is left clicking off the canvas
-                        // Ensure no drawing happens until a new drag is started
-                        no_drawing_on_current_drag = true;
+                        // We're over the texture we're drawing on!
+                        // Use whatever function the current brush is
+                        current_brush(mouse_world_position);
+                    }
+
+                    else
+                    {
+                        // We're not over our destination texture
+                        previous_drag_position = Vector2.zero;
+                        if (!mouse_was_previously_held_down)
+                        {
+                            // This is a new drag where the user is left clicking off the canvas
+                            // Ensure no drawing happens until a new drag is started
+                            no_drawing_on_current_drag = true;
+                        }
                     }
                 }
+                // Mouse is released
+                else if (!mouse_held_down)
+                {
+                    previous_drag_position = Vector2.zero;
+                    no_drawing_on_current_drag = false;
+                }
+                mouse_was_previously_held_down = mouse_held_down;
             }
-            // Mouse is released
-            else if (!mouse_held_down)
-            {
-                previous_drag_position = Vector2.zero;
-                no_drawing_on_current_drag = false;
-            }
-            mouse_was_previously_held_down = mouse_held_down;
         }
 
         // Set the colour of pixels in a straight line from start_point all the way to end_point, to ensure everything inbetween is coloured
@@ -323,7 +322,9 @@ namespace FreeDraw
                     (int)drawable_sprite.textureRect.x,
                     (int)drawable_sprite.textureRect.y,
                     (int)drawable_sprite.textureRect.width,
-                    (int)drawable_sprite.textureRect.height));
+                    (int)drawable_sprite.textureRect.height
+                    )
+                );
                 
                 // Apply the changes to the Texture2D
                 texture.Apply();
