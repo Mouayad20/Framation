@@ -25,6 +25,7 @@ namespace FreeDraw
         [SerializeField] GameObject prefab;
         List<Vector2> points = new List<Vector2>() ;
         public static bool isDrawing = true ;
+        public static bool DrawTriangulation = false ;
 
         // PEN COLOUR
         public static Color Pen_Colour = Color.red;     // Change these to change the default drawing settings
@@ -145,6 +146,10 @@ namespace FreeDraw
             if(Input.GetKeyDown(KeyCode.G)){
                 isDrawing = !isDrawing;
                 ConvertSpriteToImage();
+            }
+
+            if(Input.GetKeyDown(KeyCode.T)){
+                DrawTriangulation = !DrawTriangulation;
             }
             
             if(isDrawing){
@@ -409,14 +414,14 @@ namespace FreeDraw
                                 )
                             );
                     }
+
                     points = Utils2D.Constrain(points, 0.25f );
                     var polygon = Polygon2D.Contour(points.ToArray());
-
                     var vertices = polygon.Vertices;
                     if(vertices.Length < 3) return; // error
                     var triangulation = new Triangulation2D(polygon, 30);
                     var go = Instantiate(prefab);
-                    // go.transform.SetParent(transform, false);
+                    go.transform.SetParent(transform, false);
                     go.GetComponent<DemoMesh>().SetTriangulation(triangulation);
                     points.Clear(); 
 

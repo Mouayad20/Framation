@@ -150,7 +150,6 @@ namespace mattatz.Triangulation2DSystem.Example {
 			} else if(Input.GetMouseButtonUp(0)) {
 				// LocalStorage.SaveList<Vector2>(points, "points.json");
 				dragging = false;
-				// points.Add(new Vector2(999999999, 999999999));
 				Build();
 			}
 

@@ -136,7 +136,8 @@ public class PenTool : MonoBehaviour
                 prevDot = newDot;
                 counter = counter + 1;
                 lineCounter = lineCounter + 1;
-            }else{
+            } 
+            else {
                 print("please select dot before!! ");
             }
         }
@@ -144,7 +145,18 @@ public class PenTool : MonoBehaviour
 
     private void MoveDot(DotController dot) {
         print("MoveDot");
-        dot.transform.position = GetMousePosition();
+        Vector3 mousePos = GetMousePosition();
+        if (
+            mousePos.x <=  0.1f  || 
+            mousePos.x >=  9.9f  || 
+            mousePos.y >= -0.1f  || 
+            mousePos.y <= -7.4 
+        ){ 
+            dot.transform.position = dot.transform.position; 
+        }else{
+            dot.transform.position = mousePos; 
+        }
+        
     }
 
     private void SelectDot(DotController selectedDot) {

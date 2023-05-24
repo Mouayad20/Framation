@@ -59,6 +59,8 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using FreeDraw;
+
 
 namespace mattatz.Triangulation2DSystem.Example {
 
@@ -70,27 +72,22 @@ namespace mattatz.Triangulation2DSystem.Example {
 
 		Triangle2D[] triangles;
 
-		Segment2D skeletonLine;
-
 		Mesh mesh;
-
-		void Start () {	
-			skeletonLine = new Segment2D(new Vertex2D(new Vector2(-5,3.75f)),new Vertex2D(new Vector2(2,2)));
-		}
-
+		
 		void Update () {}
 
 		public void SetTriangulation (Triangulation2D triangulation) {
 			mesh = triangulation.Build();
-			GetComponent<MeshFilter>().sharedMesh = mesh;
+			// GetComponent<MeshFilter>().sharedMesh = mesh;
 			this.triangles = triangulation.Triangles;
 		}
 
 		void OnRenderObject () {
 			if(triangles == null) return;
-
-			GL.PushMatrix();
-				GL.MultMatrix (transform.localToWorldMatrix);
+			
+			if (Drawable.DrawTriangulation){
+				GL.PushMatrix();
+				// GL.MultMatrix (transform.localToWorldMatrix);
 
 				lineMat.SetColor("_Color", Color.red);
 				lineMat.SetPass(0);
@@ -99,45 +96,45 @@ namespace mattatz.Triangulation2DSystem.Example {
 
 				for (int i = 0; i < trianglesMomo.Length; i += 3)
 				{
-					if (
-						Utils2D.Intersect(
-								skeletonLine.a.Coordinate,
-								skeletonLine.b.Coordinate,
-								mesh.vertices[trianglesMomo[i + 0]],
-								mesh.vertices[trianglesMomo[i + 1]]
-							)
-						||
-						Utils2D.Intersect(
-							skeletonLine.a.Coordinate,
-							skeletonLine.b.Coordinate,
-							mesh.vertices[trianglesMomo[i + 1]],
-							mesh.vertices[trianglesMomo[i + 2]]
-							)
-						||
-						Utils2D.Intersect(
-							skeletonLine.a.Coordinate,
-							skeletonLine.b.Coordinate,
-							mesh.vertices[trianglesMomo[i + 0]],
-							mesh.vertices[trianglesMomo[i + 2]]
-							)
-						){
+					// if (
+					// 	Utils2D.Intersect(
+					// 			skeletonLine.a.Coordinate,
+					// 			skeletonLine.b.Coordinate,
+					// 			mesh.vertices[trianglesMomo[i + 0]],
+					// 			mesh.vertices[trianglesMomo[i + 1]]
+					// 		)
+					// 	||
+					// 	Utils2D.Intersect(
+					// 		skeletonLine.a.Coordinate,
+					// 		skeletonLine.b.Coordinate,
+					// 		mesh.vertices[trianglesMomo[i + 1]],
+					// 		mesh.vertices[trianglesMomo[i + 2]]
+					// 		)
+					// 	||
+					// 	Utils2D.Intersect(
+					// 		skeletonLine.a.Coordinate,
+					// 		skeletonLine.b.Coordinate,
+					// 		mesh.vertices[trianglesMomo[i + 0]],
+					// 		mesh.vertices[trianglesMomo[i + 2]]
+					// 		)
+					// 	){
+					// 		GL.Begin(GL.TRIANGLES);
+					// 		GL.Color(Color.green);
+					// 		GL.Vertex(mesh.vertices[trianglesMomo[i + 0]]);
+					// 		GL.Vertex(mesh.vertices[trianglesMomo[i + 1]]);
+					// 		GL.Vertex(mesh.vertices[trianglesMomo[i + 2]]);
+					// 		GL.End();
+					// }else{
 							GL.Begin(GL.TRIANGLES);
-							GL.Color(Color.green);
+							GL.Color(Color.clear);
 							GL.Vertex(mesh.vertices[trianglesMomo[i + 0]]);
 							GL.Vertex(mesh.vertices[trianglesMomo[i + 1]]);
 							GL.Vertex(mesh.vertices[trianglesMomo[i + 2]]);
 							GL.End();
-					}else{
-							GL.Begin(GL.TRIANGLES);
-							GL.Color(Color.cyan);
-							GL.Vertex(mesh.vertices[trianglesMomo[i + 0]]);
-							GL.Vertex(mesh.vertices[trianglesMomo[i + 1]]);
-							GL.Vertex(mesh.vertices[trianglesMomo[i + 2]]);
-							GL.End();
-					}
+					// }
 				}
 				GL.Begin(GL.LINES);
-					GL.Color(Color.green);
+					GL.Color(Color.magenta);
 					for(int i = 0, n = triangles.Length; i < n; i++) {
 						var t = triangles[i];
 						GL.Vertex(t.s0.a.Coordinate); GL.Vertex(t.s0.b.Coordinate);
@@ -145,11 +142,9 @@ namespace mattatz.Triangulation2DSystem.Example {
 						GL.Vertex(t.s2.a.Coordinate); GL.Vertex(t.s2.b.Coordinate);
 					}
 				GL.End();
-				GL.Begin(GL.LINES);
-					GL.Color(Color.blue);
-					GL.Vertex(skeletonLine.a.Coordinate); GL.Vertex(skeletonLine.b.Coordinate);
-				GL.End();
 			GL.PopMatrix();
+			}
+			
 		}
 
 	}
