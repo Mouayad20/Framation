@@ -18,7 +18,7 @@ public class PenTool : MonoBehaviour
 
     private List<LineController> lines;
     private List<LineController> linesTemp;
-    private List<List<LineController>> skeletons;
+    public static List<List<LineController>> skeletons;
     private LineController currentLine;
     DotController dot ;
     DotController prevDot ;

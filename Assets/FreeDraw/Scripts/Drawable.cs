@@ -12,7 +12,6 @@ namespace FreeDraw
     using mattatz.Triangulation2DSystem;
     using mattatz.Triangulation2DSystem.Example;
 
-
     [RequireComponent(typeof(SpriteRenderer))]
     [RequireComponent(typeof(Collider2D))]  // REQUIRES A COLLIDER2D to function
     // 1. Attach this to a read/write enabled sprite image
@@ -26,11 +25,10 @@ namespace FreeDraw
         List<Vector2> points = new List<Vector2>() ;
         public static bool isDrawing = true ;
         public static bool DrawTriangulation = false ;
-
         // PEN COLOUR
         public static Color Pen_Colour = Color.red;     // Change these to change the default drawing settings
         // PEN WIDTH (actually, it's a radius, in pixels)
-        public static int Pen_Width = 3;
+        public static int Pen_Width = 7;
 
         public delegate void Brush_Function(Vector2 world_position);
         // This is the function called when a left click happens
@@ -56,6 +54,10 @@ namespace FreeDraw
         Color32[] cur_colors;
         bool mouse_was_previously_held_down = false;
         bool no_drawing_on_current_drag = false;
+        public Mesh globalMesh;
+        public static List<Triangle> triangles ;
+        public static Link link ;
+        public static List<OutputLink> output ;
 
 
 
@@ -146,6 +148,11 @@ namespace FreeDraw
             if(Input.GetKeyDown(KeyCode.G)){
                 isDrawing = !isDrawing;
                 ConvertSpriteToImage();
+            }
+
+            if(Input.GetKeyDown(KeyCode.P)){
+                link = new Link();
+				output = link.Linking();
             }
 
             if(Input.GetKeyDown(KeyCode.T)){
@@ -315,6 +322,7 @@ namespace FreeDraw
             if (Reset_Canvas_On_Play)
                 ResetCanvas();
         }
+
         public void ConvertSpriteToImage()
         {
             if (drawable_sprite != null)
@@ -341,53 +349,8 @@ namespace FreeDraw
 
                     float width  = 10 ;
                     float height = 7.5f;
-
-                    // print("center x : " + width  / 2 );
-                    // print("center y : " + height / 2 );
-                    // print("_________________");
-                    // print(source.transform.position);
-                    // print("_________________");
-
                     float center_x = width   / 2 ; 
                     float center_y = height  / 2 ;
-
-                    // source.transform.position = new Vector3( 
-                    //     source.transform.position.x - center_x ,
-                    //     source.transform.position.y - center_y ,
-                    //     0
-                    // );
-
-
-                    // if(source.transform.position.x<0.0f && source.transform.position.y>0.0f ){
-                        // source.transform.position = new Vector3( 
-                        // source.transform.position.x + center_x ,
-                        // source.transform.position.y - center_y ,
-                        // 0
-                        // );
-                    // }
-
-                    // if(source.transform.position.y<0.0f && source.transform.position.x>0.0f ){
-                    //     source.transform.position = new Vector3( 
-                    //     source.transform.position.x - center_x ,
-                    //     source.transform.position.y + center_y ,
-                    //     0
-                    //     );
-                    // }
-                    //  if(source.transform.position.x>0.0f && source.transform.position.y>0.0f ){
-                    //     source.transform.position = new Vector3( 
-                    //     source.transform.position.x - center_x ,
-                    //     source.transform.position.y - center_y ,
-                    //     0
-                    //     );
-                    // }
-
-                    // if(source.transform.position.y<0.0f && source.transform.position.x<0.0f ){
-                    //     source.transform.position = new Vector3( 
-                    //     source.transform.position.x + center_x ,
-                    //     source.transform.position.y + center_y ,
-                    //     0
-                    //     );
-                    // }
 
                     Mat image = Unity.TextureToMat (texture);
 
@@ -423,6 +386,20 @@ namespace FreeDraw
                     var go = Instantiate(prefab);
                     go.transform.SetParent(transform, false);
                     go.GetComponent<DemoMesh>().SetTriangulation(triangulation);
+                    globalMesh = go.GetComponent<DemoMesh>().mesh;
+                    int[] trianglesPoints = globalMesh.triangles;
+                    int id = 0 ;
+                    triangles = new List<Triangle>();
+                    for (int i = 0; i < trianglesPoints.Length; i += 3){
+                        Triangle triangle = new Triangle();
+                        triangle.id = id ;
+                        triangle.a = globalMesh.vertices[trianglesPoints[i + 0]];
+                        triangle.b = globalMesh.vertices[trianglesPoints[i + 1]];
+                        triangle.c = globalMesh.vertices[trianglesPoints[i + 2]];
+                        triangles.Add(triangle);
+                        id = id + 1 ;
+				    }
+
                     points.Clear(); 
 
                 //    END  find contours from texture 
@@ -442,6 +419,4 @@ namespace FreeDraw
             }
         }
     }
-
-    
 }

@@ -6,8 +6,8 @@ public class LineController : MonoBehaviour
 {
     public int id;
     private LineRenderer lr;
-    public DotController start;
-    public DotController end;
+    public  DotController start;
+    public  DotController end;
 
     private void Awake(){
         lr = GetComponent <LineRenderer>();
