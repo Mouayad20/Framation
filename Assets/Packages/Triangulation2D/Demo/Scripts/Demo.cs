@@ -174,7 +174,7 @@ namespace mattatz.Triangulation2DSystem.Example {
 		var triangulation = new Triangulation2D(polygon, angle);
 		var go = Instantiate(prefab);
 		go.transform.SetParent(transform, false);
-		go.GetComponent<DemoMesh>().SetTriangulation(triangulation);
+		// go.GetComponent<DemoMesh>().SetTriangulation(triangulation);
 
 		Clear();
 	}
