@@ -151,11 +151,13 @@ namespace FreeDraw
             }
 
             if(Input.GetKeyDown(KeyCode.P)){
+                print("PPPPPPPPPPPPPPPPPPPPPPPPPPPPP");
                 link = new Link();
 				output = link.Linking();
             }
 
             if(Input.GetKeyDown(KeyCode.T)){
+                print("TTTTTTTTTTTTTTTTTTTTTTTTTTTTT");
                 DrawTriangulation = !DrawTriangulation;
             }
             
@@ -385,7 +387,7 @@ namespace FreeDraw
                     var triangulation = new Triangulation2D(polygon, 30);
                     var go = Instantiate(prefab);
                     go.transform.SetParent(transform, false);
-                    go.GetComponent<DemoMesh>().SetTriangulation(triangulation);
+                    go.GetComponent<DemoMesh>().SetTriangulation(triangulation,texture);
                     globalMesh = go.GetComponent<DemoMesh>().mesh;
                     int[] trianglesPoints = globalMesh.triangles;
                     int id = 0 ;

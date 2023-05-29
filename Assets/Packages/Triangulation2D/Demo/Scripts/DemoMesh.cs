@@ -17,13 +17,30 @@ namespace mattatz.Triangulation2DSystem.Example {
 
 		public Triangle2D[] triangles;
 
+		Color[] colors = new Color[2];
+		
 		public Mesh mesh;
 		
 		void Update () {}
 
-		public void SetTriangulation (Triangulation2D triangulation) {
+		public void SetTriangulation (Triangulation2D triangulation,Texture2D texture) {
+			colors[0] = Color.red;
+			colors[1] = Color.green;
 			mesh = triangulation.Build();
-			// GetComponent<MeshFilter>().sharedMesh = mesh;
+			MeshRenderer rend = gameObject.AddComponent<MeshRenderer>();
+			rend.sharedMaterial = new Material(Shader.Find("Standard"));
+			MeshFilter fil = gameObject.GetComponent<MeshFilter>();
+
+			Vector2[] uv = new Vector2[mesh.vertices.Length];
+			// print(">>>>>  " + mesh.vertices.Length);
+			for (int i = 0; i < mesh.vertices.Length; i ++){
+				uv[i] = new Vector2(mesh.vertices[i].x/10,mesh.vertices[i].y/7.5f);
+				// print(uv[i]);
+			}
+			mesh.uv = uv;
+			// print(">>>>>  " + mesh.uv.Length);
+			fil.mesh = mesh; 
+			fil.GetComponent<Renderer>().material.mainTexture = texture;
 			this.triangles = triangulation.Triangles;
 		}
 
@@ -38,7 +55,7 @@ namespace mattatz.Triangulation2DSystem.Example {
 					for (int o = 0; o < Drawable.output.Count; o++){
 						for (int i = 0; i < Drawable.output[o].triangles.Count; i++){
 								GL.Begin(GL.TRIANGLES);
-								GL.Color(Drawable.output[o].color);
+								GL.Color(colors[Drawable.output[o].line.id]);
 									GL.Vertex(Drawable.output[o].triangles[i].a);
 									GL.Vertex(Drawable.output[o].triangles[i].b);
 									GL.Vertex(Drawable.output[o].triangles[i].c);
