@@ -16,39 +16,10 @@ public class Link : MonoBehaviour {
     public Link(){
         triangles = Drawable.triangles;
         skeletons = PenTool.skeletons ;
+        print("kokokokokookoko   " + triangles.Count);
     }
 
-    // public List<OutputLink> Linking(){
-    //     List<OutputLink> output  = new List<OutputLink>();
 
-    //     for (int i = 0; i < skeletons[0].Count; i ++){
-    //         OutputLink o = new OutputLink();
-    //         o.line  = skeletons[0][i];
-    //         for (int j = 0; j < triangles.Count; j ++){
-    //             if (
-    //                     Utils2D.Intersect(
-    //                             skeletons[0][i].start.transform.position,skeletons[0][i].end.transform.position,
-    //                             triangles[j].a,triangles[j].b
-    //                         )
-    //                     ||
-    //                     Utils2D.Intersect(
-    //                         skeletons[0][i].start.transform.position,skeletons[0][i].end.transform.position,
-    //                         triangles[j].b,triangles[j].c
-    //                         )
-    //                     ||
-    //                     Utils2D.Intersect(
-    //                         skeletons[0][i].start.transform.position,skeletons[0][i].end.transform.position,
-    //                         triangles[j].a,triangles[j].c
-    //                         )
-    //                 ) {
-    //                     o.triangles.Add(triangles[j]);
-    //                 }
-    //         }
-    //         output.Add(o);
-    //     }
-
-    //     return output; 
-    // }
     public List<OutputLink> Linking(){
 
         List<OutputLink> output = new List<OutputLink>();
@@ -56,73 +27,97 @@ public class Link : MonoBehaviour {
         List<LineController> lines = skeletons[0];
 
         // This dictionary will relate each point with its triangles
-        Dictionary<Vector3, List<Triangle>> pointTriangles = new Dictionary<Vector3, List<Triangle>>();
+        Dictionary<(float, float, float), List<int>> pointTriangles = new Dictionary<(float, float, float), List<int>>();
 
         // We will fill this dictionary for all the points and their triangles
         // by adding each triangle to its 3 points (a, b, c)
         foreach (Triangle triangle in triangles)
         {
             // Initialize the lists for the points if they don't exist
-            if (!pointTriangles.ContainsKey(triangle.a))
-                pointTriangles[triangle.a] = new List<Triangle>();
-            if (!pointTriangles.ContainsKey(triangle.b))
-                pointTriangles[triangle.b] = new List<Triangle>();
-            if (!pointTriangles.ContainsKey(triangle.c))
-                pointTriangles[triangle.c] = new List<Triangle>();
+            if (!pointTriangles.ContainsKey((triangle.a.x, triangle.a.y, triangle.a.z)))
+                pointTriangles[(triangle.a.x, triangle.a.y, triangle.a.z)] = new List<int>();
+            if (!pointTriangles.ContainsKey((triangle.b.x, triangle.b.y, triangle.b.z)))
+                pointTriangles[(triangle.b.x, triangle.b.y, triangle.b.z)] = new List<int>();
+            if (!pointTriangles.ContainsKey((triangle.c.x, triangle.c.y, triangle.c.z)))
+                pointTriangles[(triangle.c.x, triangle.c.y, triangle.c.z)] = new List<int>();
 
             // Add the triangle to the corresponding points
-            pointTriangles[triangle.a].Add(triangle);
-            pointTriangles[triangle.b].Add(triangle);
-            pointTriangles[triangle.c].Add(triangle);
+            // print("triangle a " + triangle.a );
+            pointTriangles[(triangle.a.x, triangle.a.y, triangle.a.z)].Add(triangle.id);
+            pointTriangles[(triangle.b.x, triangle.b.y, triangle.b.z)].Add(triangle.id);
+            pointTriangles[(triangle.c.x, triangle.c.y, triangle.c.z)].Add(triangle.id);
         }
+
 
         // Now we know all triangles that touch a specific point
         // and now we can know the neighbors of a triangle by knowing the neighbors of all its points
         // so we will calculate them and put them in the neighbors dictionary
 
         // Define the neighbors dictionary and initialize it as empty
-        Dictionary<Triangle, List<Triangle>> neighbors = new Dictionary<Triangle, List<Triangle>>();
+        Dictionary<int, List<int>> neighbors = new Dictionary<int, List<int>>();
 
         // Fill the neighbors dictionary by iterating over all the triangles
         // We will add each neighbor for any point of this triangle as a neighbor for it
         foreach (Triangle triangle in triangles)
         {
-            neighbors[triangle] = new List<Triangle>();
+            neighbors[triangle.id] = new List<int>();
 
             // Add the neighbors of point a
-            foreach (Triangle neighbor in pointTriangles[triangle.a])
-                neighbors[triangle].Add(neighbor);
+            foreach (int neighborId in pointTriangles[(triangle.a.x, triangle.a.y, triangle.a.z)]){
+
+                foreach (int koko in neighbors[triangle.id]){
+                    print("koko id " + koko);
+                }
+                print("cond  : " + !neighbors[triangle.id].Contains(neighborId) + " nid : " + neighborId);
+                if (!neighbors[triangle.id].Contains(neighborId))
+                    neighbors[triangle.id].Add(neighborId);
+
+            }
 
             // Add the neighbors of point b
-            foreach (Triangle neighbor in pointTriangles[triangle.b])
-                neighbors[triangle].Add(neighbor);
+            foreach (int neighborId in pointTriangles[(triangle.b.x, triangle.b.y, triangle.b.z)]){
+                if (!neighbors[triangle.id].Contains(neighborId))
+                    neighbors[triangle.id].Add(neighborId);
+
+            }
 
             // Add the neighbors of point c
-            foreach (Triangle neighbor in pointTriangles[triangle.c])
-                neighbors[triangle].Add(neighbor);
+            foreach (int neighborId in pointTriangles[(triangle.c.x, triangle.c.y, triangle.c.z)]){
+                if (!neighbors[triangle.id].Contains(neighborId))
+                    neighbors[triangle.id].Add(neighborId);
+
+            }
+            // print("_____________________    "  +triangle.id);
+            // foreach (Triangle neighbor in neighbors[triangle.id]){
+            //     print("neighbor id " + neighbor.id);
+            // }
         }
+
+        // foreach (var kvp in neighbors) {
+        //     print("Key = "+kvp.Key+", Value = "+  kvp.Value.Count);
+        // }
 
         // Now we have the neighbors dictionary filled correctly
         // and by it, we can access all the neighbors for a specific triangle
         // neighbors[triangle] -> List<Triangle>
 
         // This dictionary will give us in the end the distance of each triangle for each line
-        Dictionary<KeyValuePair<LineController, Triangle>, int> distance = new Dictionary<KeyValuePair<LineController, Triangle>, int>();
+        Dictionary<(int, int), int> distance = new Dictionary<(int, int), int>();
 
         // We will fill this distance with -1 (-1 means that this value is not calculated yet)
         foreach (LineController line in lines)
         {
             foreach (Triangle triangle in triangles)
             {
-                distance[new KeyValuePair<LineController, Triangle>(line, triangle)] = -1;
+                distance[(line.id, triangle.id)] = -1;
             }
         }
 
-        Dictionary<LineController, List<Triangle>> directConnectedTriangles = new Dictionary<LineController, List<Triangle>>();
+        Dictionary<int, List<Triangle>> directConnectedTriangles = new Dictionary<int, List<Triangle>>();
 
 
         for (int i = 0; i < lines.Count; i ++){
-            directConnectedTriangles[lines[i]] = new List<Triangle>();
+            directConnectedTriangles[lines[i].id] = new List<Triangle>();
             for (int j = 0; j < triangles.Count; j ++){
                 if (
                         Utils2D.Intersect(
@@ -140,7 +135,7 @@ public class Link : MonoBehaviour {
                             triangles[j].a,triangles[j].c
                             )
                     ) {
-                        directConnectedTriangles[lines[i]].Add(triangles[j]);
+                        directConnectedTriangles[lines[i].id].Add(triangles[j]);
                     }
             }
         }
@@ -153,32 +148,45 @@ public class Link : MonoBehaviour {
         // When we start this BFS, we will fill the queue with the direct triangles with 0 distance
         foreach (LineController line in lines)
         {
-            Queue<KeyValuePair<Triangle, int>> queue = new Queue<KeyValuePair<Triangle, int>>();
+            Queue<KeyValuePair<int, int>> queue = new Queue<KeyValuePair<int, int>>();
 
             // Iterate over all the triangles that are directly connected with the temporary line
             // Set their distance as 0 and add them to the queue
-            foreach (Triangle triangle in directConnectedTriangles[line])
+            foreach (Triangle triangle in directConnectedTriangles[line.id])
             {
-                distance[new KeyValuePair<LineController, Triangle>(line, triangle)] = 0;
-                queue.Enqueue(new KeyValuePair<Triangle, int>(triangle, 0));
+                distance[(line.id, triangle.id)] = 0;
+                queue.Enqueue(new KeyValuePair<int, int>(triangle.id, 0));
             }
+
+            print("queue size  : " + queue.Count );
 
             while (queue.Count > 0)
             {
                 // Get the first element of the queue
-                KeyValuePair<Triangle, int> current = queue.Dequeue();
+                KeyValuePair<int, int> current = queue.Dequeue();
 
-                foreach (Triangle neighbor in neighbors[current.Key])
+                print("id : " + current.Key + " distance : " + distance[(line.id, current.Key)] + " current : " + current.Value);
+                // print("distance of current     " + distance[(line.id, current.Key.id)]);
+                // print("valueeee of current     " + current.Value);
+                // print("valueeee of triangel id " + current.Key.id);
+
+                foreach (int neighborId in neighbors[current.Key])
                 {
                     // Check if we calculated this neighbor before or not
                     // If it is not calculated, we have to calculate it
                     // If it is already calculated, we will skip it
-                    if (distance[new KeyValuePair<LineController, Triangle>(line, neighbor)] == -1)
+
+                    // print("distance of the new child soso  " + distance[(line.id, neighbor.id)]);
+                    print("id : " + neighborId + " distance : " + distance[(line.id,neighborId)]);
+
+                    if (distance[(line.id, neighborId)] == -1)
                     {
                         // Calculate the distance for this neighbor
-                        distance[new KeyValuePair<LineController, Triangle>(line, neighbor)] = current.Value + 1;
+                        distance[(line.id, neighborId)] = current.Value + 1;
                         // Add it to the queue to calculate its neighbors as well
-                        queue.Enqueue(new KeyValuePair<Triangle, int>(neighbor, current.Value + 1));
+                        queue.Enqueue(new KeyValuePair<int, int>(neighborId, current.Value + 1));
+
+                        // print("distance of the new child  " + distance[(line.id, neighborId)]);
                     }
                 }
             }
@@ -189,7 +197,7 @@ public class Link : MonoBehaviour {
 
         // Now we can relate the triangles to their lines in the output
         // Define the epsilon or take it as an argument of the function or access it by any way
-        int epsilon = 2;
+        int epsilon = 1;
 
         // When epsilon == 0, that means we will add each triangle to the closest line
         // and we will add it to many lines if they are with the same closest distance
@@ -206,18 +214,22 @@ public class Link : MonoBehaviour {
             // Calculate the minimum distance to compare with other distances
             foreach (LineController line in lines)
             {
-                minimumDistance = Math.Min(minimumDistance, distance[new KeyValuePair<LineController, Triangle>(line, triangle)]);
+                minimumDistance = Math.Min(minimumDistance, distance[(line.id, triangle.id)]);
             }
 
+            print("minimum distance = " + minimumDistance);
+
             // Compare the distances with the minimumDistance
-            // If the minimumDistance + epsilon >= the distance for this line,
+            // If the distance - minimumDistance <= epsilon the  for this line,
             // then we will consider it as connected to this triangle
             foreach (LineController line in lines)
             {
-                if (distance[new KeyValuePair<LineController, Triangle>(line, triangle)] - minimumDistance <= epsilon)
+                print("distance   :  "+ distance[(line.id, triangle.id)]);
+                if (distance[(line.id, triangle.id)] - minimumDistance <= epsilon)
                 {
                     if (!lineTriangles.ContainsKey(line))
                         lineTriangles[line] = new List<Triangle>();
+                    triangle.linesId.Add(line.id);
                     lineTriangles[line].Add(triangle);
                 }
             }
@@ -235,13 +247,6 @@ public class Link : MonoBehaviour {
             outputLink.triangles = kvp.Value;
             output.Add(outputLink);
         }
-        print("____________***********__________");
-        print(output[0].line.id);
-        print(output[0].triangles.Count);
-        print("__________________________________");
-        print(output[1].line.id);
-        print(output[1].triangles.Count);
-        print("____________***********__________");
         return output;
     }
 
@@ -412,3 +417,4 @@ public class Link : MonoBehaviour {
 
 
 */
+

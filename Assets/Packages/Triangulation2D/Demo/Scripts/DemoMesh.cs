@@ -17,7 +17,7 @@ namespace mattatz.Triangulation2DSystem.Example {
 
 		public Triangle2D[] triangles;
 
-		Color[] colors = new Color[2];
+		Color[] colors = new Color[6];
 		
 		public Mesh mesh;
 		
@@ -26,6 +26,10 @@ namespace mattatz.Triangulation2DSystem.Example {
 		public void SetTriangulation (Triangulation2D triangulation,Texture2D texture) {
 			colors[0] = Color.red;
 			colors[1] = Color.green;
+			colors[2] = Color.cyan;
+			colors[3] = Color.blue;
+			colors[4] = Color.magenta;
+			colors[5] = Color.yellow;
 			mesh = triangulation.Build();
 			MeshRenderer rend = gameObject.AddComponent<MeshRenderer>();
 			rend.sharedMaterial = new Material(Shader.Find("Standard"));
@@ -55,7 +59,11 @@ namespace mattatz.Triangulation2DSystem.Example {
 					for (int o = 0; o < Drawable.output.Count; o++){
 						for (int i = 0; i < Drawable.output[o].triangles.Count; i++){
 								GL.Begin(GL.TRIANGLES);
-								GL.Color(colors[Drawable.output[o].line.id]);
+								if (Drawable.output[o].triangles[i].linesId.Count > 1 )
+									GL.Color(Color.black);
+								else
+									GL.Color(colors[Drawable.output[o].line.id]);
+
 									GL.Vertex(Drawable.output[o].triangles[i].a);
 									GL.Vertex(Drawable.output[o].triangles[i].b);
 									GL.Vertex(Drawable.output[o].triangles[i].c);
