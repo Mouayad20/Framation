@@ -16,9 +16,7 @@ public class Link : MonoBehaviour {
     public Link(){
         triangles = Drawable.triangles;
         skeletons = PenTool.skeletons ;
-        print("kokokokokookoko   " + triangles.Count);
     }
-
 
     public List<OutputLink> Linking(){
 
@@ -27,6 +25,8 @@ public class Link : MonoBehaviour {
         List<LineController> lines = skeletons[0];
 
         // This dictionary will relate each point with its triangles
+        // (float, float, float)  ==> coordinates of point from heads of any triangle
+        // List<int>              ==> list of triangles id that have previous point as one of its vertices
         Dictionary<(float, float, float), List<int>> pointTriangles = new Dictionary<(float, float, float), List<int>>();
 
         // We will fill this dictionary for all the points and their triangles
@@ -42,7 +42,6 @@ public class Link : MonoBehaviour {
                 pointTriangles[(triangle.c.x, triangle.c.y, triangle.c.z)] = new List<int>();
 
             // Add the triangle to the corresponding points
-            // print("triangle a " + triangle.a );
             pointTriangles[(triangle.a.x, triangle.a.y, triangle.a.z)].Add(triangle.id);
             pointTriangles[(triangle.b.x, triangle.b.y, triangle.b.z)].Add(triangle.id);
             pointTriangles[(triangle.c.x, triangle.c.y, triangle.c.z)].Add(triangle.id);
@@ -54,6 +53,8 @@ public class Link : MonoBehaviour {
         // so we will calculate them and put them in the neighbors dictionary
 
         // Define the neighbors dictionary and initialize it as empty
+        // Dictionary<1,2>  : 1 - id of triangle 
+        //                    2 - list of its neighbors  
         Dictionary<int, List<int>> neighbors = new Dictionary<int, List<int>>();
 
         // Fill the neighbors dictionary by iterating over all the triangles
@@ -64,44 +65,31 @@ public class Link : MonoBehaviour {
 
             // Add the neighbors of point a
             foreach (int neighborId in pointTriangles[(triangle.a.x, triangle.a.y, triangle.a.z)]){
-
-                foreach (int koko in neighbors[triangle.id]){
-                    print("koko id " + koko);
-                }
-                print("cond  : " + !neighbors[triangle.id].Contains(neighborId) + " nid : " + neighborId);
                 if (!neighbors[triangle.id].Contains(neighborId))
                     neighbors[triangle.id].Add(neighborId);
-
             }
 
             // Add the neighbors of point b
             foreach (int neighborId in pointTriangles[(triangle.b.x, triangle.b.y, triangle.b.z)]){
                 if (!neighbors[triangle.id].Contains(neighborId))
                     neighbors[triangle.id].Add(neighborId);
-
             }
 
             // Add the neighbors of point c
             foreach (int neighborId in pointTriangles[(triangle.c.x, triangle.c.y, triangle.c.z)]){
                 if (!neighbors[triangle.id].Contains(neighborId))
                     neighbors[triangle.id].Add(neighborId);
-
             }
-            // print("_____________________    "  +triangle.id);
-            // foreach (Triangle neighbor in neighbors[triangle.id]){
-            //     print("neighbor id " + neighbor.id);
-            // }
         }
-
-        // foreach (var kvp in neighbors) {
-        //     print("Key = "+kvp.Key+", Value = "+  kvp.Value.Count);
-        // }
 
         // Now we have the neighbors dictionary filled correctly
         // and by it, we can access all the neighbors for a specific triangle
         // neighbors[triangle] -> List<Triangle>
 
         // This dictionary will give us in the end the distance of each triangle for each line
+        // Dictionary<(1, 2), 3>  : 1 - line id
+        //                          2 - triangle id
+        //                          3 - distance between line and triangle
         Dictionary<(int, int), int> distance = new Dictionary<(int, int), int>();
 
         // We will fill this distance with -1 (-1 means that this value is not calculated yet)
@@ -113,8 +101,10 @@ public class Link : MonoBehaviour {
             }
         }
 
-        Dictionary<int, List<Triangle>> directConnectedTriangles = new Dictionary<int, List<Triangle>>();
 
+        // Find Direct Connected Triangles For Each Line
+        // Dictionary<1, List<Triangle>>  :  1 - line id  
+        Dictionary<int, List<Triangle>> directConnectedTriangles = new Dictionary<int, List<Triangle>>();
 
         for (int i = 0; i < lines.Count; i ++){
             directConnectedTriangles[lines[i].id] = new List<Triangle>();
@@ -147,7 +137,9 @@ public class Link : MonoBehaviour {
         // Our BFS will be multi-source (that means we will start with a queue that has many nodes)
         // When we start this BFS, we will fill the queue with the direct triangles with 0 distance
         foreach (LineController line in lines)
-        {
+        {   
+            // Queue<KeyValuePair<1, 2>> : 1 - triangle id
+            //                             2 - distance between triangle and current processing line
             Queue<KeyValuePair<int, int>> queue = new Queue<KeyValuePair<int, int>>();
 
             // Iterate over all the triangles that are directly connected with the temporary line
@@ -158,35 +150,22 @@ public class Link : MonoBehaviour {
                 queue.Enqueue(new KeyValuePair<int, int>(triangle.id, 0));
             }
 
-            print("queue size  : " + queue.Count );
-
             while (queue.Count > 0)
             {
                 // Get the first element of the queue
                 KeyValuePair<int, int> current = queue.Dequeue();
-
-                print("id : " + current.Key + " distance : " + distance[(line.id, current.Key)] + " current : " + current.Value);
-                // print("distance of current     " + distance[(line.id, current.Key.id)]);
-                // print("valueeee of current     " + current.Value);
-                // print("valueeee of triangel id " + current.Key.id);
 
                 foreach (int neighborId in neighbors[current.Key])
                 {
                     // Check if we calculated this neighbor before or not
                     // If it is not calculated, we have to calculate it
                     // If it is already calculated, we will skip it
-
-                    // print("distance of the new child soso  " + distance[(line.id, neighbor.id)]);
-                    print("id : " + neighborId + " distance : " + distance[(line.id,neighborId)]);
-
                     if (distance[(line.id, neighborId)] == -1)
                     {
                         // Calculate the distance for this neighbor
                         distance[(line.id, neighborId)] = current.Value + 1;
                         // Add it to the queue to calculate its neighbors as well
                         queue.Enqueue(new KeyValuePair<int, int>(neighborId, current.Value + 1));
-
-                        // print("distance of the new child  " + distance[(line.id, neighborId)]);
                     }
                 }
             }
@@ -197,7 +176,7 @@ public class Link : MonoBehaviour {
 
         // Now we can relate the triangles to their lines in the output
         // Define the epsilon or take it as an argument of the function or access it by any way
-        int epsilon = 1;
+        int epsilon = 0;
 
         // When epsilon == 0, that means we will add each triangle to the closest line
         // and we will add it to many lines if they are with the same closest distance
@@ -217,14 +196,11 @@ public class Link : MonoBehaviour {
                 minimumDistance = Math.Min(minimumDistance, distance[(line.id, triangle.id)]);
             }
 
-            print("minimum distance = " + minimumDistance);
-
             // Compare the distances with the minimumDistance
             // If the distance - minimumDistance <= epsilon the  for this line,
             // then we will consider it as connected to this triangle
             foreach (LineController line in lines)
             {
-                print("distance   :  "+ distance[(line.id, triangle.id)]);
                 if (distance[(line.id, triangle.id)] - minimumDistance <= epsilon)
                 {
                     if (!lineTriangles.ContainsKey(line))
@@ -251,170 +227,3 @@ public class Link : MonoBehaviour {
     }
 
 }
-/*
-
-        for (int i = 0; i < skeletons[0].Count; i ++){
-            OutputLink o = new OutputLink();
-            o.line  = skeletons[0][i];
-            for (int j = 0; j < triangles.Count; j ++){
-                if (
-                        Utils2D.Intersect(
-                                skeletons[0][i].start.transform.position,skeletons[0][i].end.transform.position,
-                                triangles[j].a,triangles[j].b
-                            )
-                        ||
-                        Utils2D.Intersect(
-                            skeletons[0][i].start.transform.position,skeletons[0][i].end.transform.position,
-                            triangles[j].b,triangles[j].c
-                            )
-                        ||
-                        Utils2D.Intersect(
-                            skeletons[0][i].start.transform.position,skeletons[0][i].end.transform.position,
-                            triangles[j].a,triangles[j].c
-                            )
-                    ) {
-                        o.triangles.Add(triangles[j]);
-                    }
-            }
-            output.Add(o);
-        }
-
-        
-        // while ( true ){
-        //     for (int o = 0; o < output.Count; o++) {
-        //         int sizeO = output[o].triangles.Count;
-        //         for(int k = 0; k < sizeO ; k++) {
-        //             for (int t = 0; t < triangles.Count; t ++) {
-        //                 if (
-        //                     output[o].triangles[k].id != triangles[t].id &&
-        //                     (
-        //                         output[o].triangles[k].a == triangles[t].a ||
-        //                         output[o].triangles[k].a == triangles[t].b ||
-        //                         output[o].triangles[k].a == triangles[t].c ||
-
-        //                         output[o].triangles[k].b == triangles[t].a ||
-        //                         output[o].triangles[k].b == triangles[t].b ||
-        //                         output[o].triangles[k].b == triangles[t].c ||
-
-        //                         output[o].triangles[k].c == triangles[t].a ||
-        //                         output[o].triangles[k].c == triangles[t].b ||
-        //                         output[o].triangles[k].c == triangles[t].c   
-        //                     )
-        //                 ){
-        //                     output[o].triangles.Add(triangles[t]);
-        //                     size = size - 1 ;
-        //                     print("2size  :: " + size);
-        //                     if (size <= 0 ) break;
-        //                 }else continue;
-        //             }
-        //         }
-        //     }
-
-        // }        
-
-        // for (int o = 0; o < output.Count; o++) {
-        //     for(int k = 0; k < output[o].triangles.Count; k++) {
-        //         for (int t = 0; t < triangles.Count; t ++) {
-        //             if (
-        //                 ( 
-        //                     output[o].triangles[k].a == triangles[t].a || output[o].triangles[k].a == triangles[t].b || output[o].triangles[k].a == triangles[t].c ||
-        //                     output[o].triangles[k].b == triangles[t].a || output[o].triangles[k].b == triangles[t].b || output[o].triangles[k].b == triangles[t].c ||
-        //                     output[o].triangles[k].c == triangles[t].a || output[o].triangles[k].c == triangles[t].b || output[o].triangles[k].c == triangles[t].c   
-        //                 ) 
-        //                 && 
-        //                 !(
-        //                     output[o].triangles[k].id == triangles[t].id
-        //                 )
-        //             ){
-        //                 o.triangles.Add(triangles[t]);
-        //                 // triangles.RemoveAt(t);
-        //                 size = size - 1 ;
-        //             }else{
-        //                 continue;
-        //             }
-        //         }
-        //     }
-        // }
-          
-
-
-
-*/
-
-
-
-/*
-    int size = triangles.Count;
-
-       
-        
-        for (int i = 0; i < skeletons[0].Count; i ++){
-            OutputLink o = new OutputLink();
-            o.line  = skeletons[0][i];
-            for (int j = 0; j < triangles.Count; j ++){
-                if (
-                        Utils2D.Intersect(
-                                skeletons[0][i].start.transform.position,
-                                skeletons[0][i].end.transform.position,
-                                triangles[j].a,
-                                triangles[j].b
-                            )
-                        ||
-                        Utils2D.Intersect(
-                            skeletons[0][i].start.transform.position,
-                            skeletons[0][i].end.transform.position,
-                            triangles[j].b,
-                            triangles[j].c
-                            )
-                        ||
-                        Utils2D.Intersect(
-                            skeletons[0][i].start.transform.position,
-                            skeletons[0][i].end.transform.position,
-                            triangles[j].a,
-                            triangles[j].c
-                            )
-                    ) {
-                        Triangle tri = triangles[j];
-                        // triangles.RemoveAt(j);
-                        o.triangles.Add(tri);
-                        size = size - 1 ;
-                        
-                        
-                    } 
-                    else {
-                        continue;
-                    }
-            }
-            output.Add(o);
-        }
-
-        for (int o = 0; o < output.Count; o++) {
-            for(int k = 0; k < output[o].triangles.Count; k++) {
-                for (int t = 0; t < triangles.Count; t ++) {
-                    if (
-                        ( 
-                            output[o].triangles[k].a == triangles[t].a || output[o].triangles[k].a == triangles[t].b || output[o].triangles[k].a == triangles[t].c ||
-                            output[o].triangles[k].b == triangles[t].a || output[o].triangles[k].b == triangles[t].b || output[o].triangles[k].b == triangles[t].c ||
-                            output[o].triangles[k].c == triangles[t].a || output[o].triangles[k].c == triangles[t].b || output[o].triangles[k].c == triangles[t].c   
-                        ) 
-                        && 
-                        !(
-                            output[o].triangles[k].id == triangles[t].id
-                        )
-                    ){
-                        o.triangles.Add(triangles[t]);
-                        // triangles.RemoveAt(t);
-                        size = size - 1 ;
-                    }else{
-                        continue;
-                    }
-                }
-            }
-        }
-                        
-            // while ( triangles.Count > 0  ){
-            // }
-
-
-*/
-

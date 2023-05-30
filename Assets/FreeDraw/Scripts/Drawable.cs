@@ -375,7 +375,7 @@ namespace FreeDraw
                         points.Add(
                             new Vector2(
                                 ((  contours[0][k].X - center_x ) / 100 ) + 0.05f ,
-                                (( -contours[0][k].Y - center_y ) / 100 ) + 0.05f
+                                (( -contours[0][k].Y - center_y ) / 100 ) + 0.05f 
                                 )
                             );
                     }
@@ -387,7 +387,7 @@ namespace FreeDraw
                     var triangulation = new Triangulation2D(polygon, 30);
                     var go = Instantiate(prefab);
                     go.transform.SetParent(transform, false);
-                    go.GetComponent<DemoMesh>().SetTriangulation(triangulation,texture);
+                    go.GetComponent<DemoMesh>().SetTriangulation(triangulation);
                     globalMesh = go.GetComponent<DemoMesh>().mesh;
                     int[] trianglesPoints = globalMesh.triangles;
                     int id = 0 ;
