@@ -57,7 +57,7 @@ namespace FreeDraw
         public Mesh globalMesh;
         public static List<Triangle> triangles ;
         public static Link link ;
-        public static List<OutputLink> output ;
+        public static Dictionary<LineController, List<Triangle>> output ;
 
 
 

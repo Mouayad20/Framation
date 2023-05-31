@@ -34,32 +34,41 @@ namespace mattatz.Triangulation2DSystem.Example {
 				GL.PushMatrix();
 				lineMat.SetColor("_Color", Color.red);
 				lineMat.SetPass(0);
-				
-				for (int o = 0; o < Drawable.output.Count; o++) {
-					for (int i = 0; i < Drawable.output[o].triangles.Count; i++) {
-							GL.Begin(GL.TRIANGLES);
-							if (Drawable.output[o].triangles[i].linesId.Count > 1 )
-								GL.Color(Color.black);
-							else
-								GL.Color(Drawable.output[o].color);
+				for (int t = 0; t < Drawable.link.triangles.Count; t++) {
+					// for (int o = 0; o < Drawable.output.Count; o++) {
+					// 	for (int i = 0; i < Drawable.output[o].triangles.Count; i++) {
+					GL.Begin(GL.TRIANGLES);
+						if (Drawable.link.triangles[t].linesId.Count > 1 )
+							GL.Color(Color.black);
+						else
+							GL.Color(Color.red);
 
-								GL.Vertex(Drawable.output[o].triangles[i].a);
-								GL.Vertex(Drawable.output[o].triangles[i].b);
-								GL.Vertex(Drawable.output[o].triangles[i].c);
-							GL.End();
+						GL.Vertex(Drawable.link.triangles[t].a);
+						GL.Vertex(Drawable.link.triangles[t].b);
+						GL.Vertex(Drawable.link.triangles[t].c);
+					GL.End();
 
-							GL.Begin(GL.LINES);
-							GL.Color(Color.yellow);
-								GL.Vertex(Drawable.output[o].triangles[i].a);
-								GL.Vertex(Drawable.output[o].triangles[i].b);
-								GL.Vertex(Drawable.output[o].triangles[i].b);
-								GL.Vertex(Drawable.output[o].triangles[i].c);
-								GL.Vertex(Drawable.output[o].triangles[i].c);
-								GL.Vertex(Drawable.output[o].triangles[i].a);
-							GL.End();
-					}
+					GL.Begin(GL.LINES);
+					GL.Color(Color.yellow);
+						GL.Vertex(Drawable.link.triangles[t].a);
+						GL.Vertex(Drawable.link.triangles[t].b);
+						GL.Vertex(Drawable.link.triangles[t].b);
+						GL.Vertex(Drawable.link.triangles[t].c);
+						GL.Vertex(Drawable.link.triangles[t].c);
+						GL.Vertex(Drawable.link.triangles[t].a);
+					GL.End();
+					// 	}
+					// }
+					// GL.Begin(GL.LINES);
+					// GL.Color(Color.magenta);
+					// 	GL.Vertex(Drawable.link.triangles[t].a);
+					// 	GL.Vertex(Drawable.link.triangles[t].b);
+					// 	GL.Vertex(Drawable.link.triangles[t].b);
+					// 	GL.Vertex(Drawable.link.triangles[t].c);
+					// 	GL.Vertex(Drawable.link.triangles[t].c);
+					// 	GL.Vertex(Drawable.link.triangles[t].a);
+					// GL.End();
 				}
-					
 				GL.PopMatrix();	
 			}	
 		}

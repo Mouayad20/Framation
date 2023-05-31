@@ -18,7 +18,7 @@ public class Link : MonoBehaviour {
         skeletons = PenTool.skeletons ;
     }
 
-    public List<OutputLink> Linking(){
+    public Dictionary<LineController, List<Triangle>> Linking(){
 
         List<OutputLink> output = new List<OutputLink>();
 
@@ -206,6 +206,7 @@ public class Link : MonoBehaviour {
                     if (!lineTriangles.ContainsKey(line))
                         lineTriangles[line] = new List<Triangle>();
                     triangle.linesId.Add(line.id);
+                    // triangle.color = new Color(Random.value, Random.value, Random.value, 1.0f);
                     lineTriangles[line].Add(triangle);
                 }
             }
@@ -217,13 +218,13 @@ public class Link : MonoBehaviour {
 
         /// ---------- here you have to fill the output from the lineTriangles dictionary --------- ///
 
-        foreach (KeyValuePair<LineController, List<Triangle>> kvp in lineTriangles){
-            OutputLink outputLink = new OutputLink();
-            outputLink.line = kvp.Key;
-            outputLink.triangles = kvp.Value;
-            output.Add(outputLink);
-        }
-        return output;
+        // foreach (KeyValuePair<LineController, List<Triangle>> kvp in lineTriangles){
+        //     OutputLink outputLink = new OutputLink();
+        //     outputLink.line = kvp.Key;
+        //     outputLink.triangles = kvp.Value;
+        //     output.Add(outputLink);
+        // }
+        return lineTriangles;
     }
 
 }

@@ -27,20 +27,32 @@ public class PenTool : MonoBehaviour
     int pupId;
     int lineCounter ;
 
+
+    Vector3 prevCenter ;
+    Vector3 center;
+    float prevX ;
+    float prevY ;
+    float dX ;
+    float dY ;
+
     float k = 0.0f ; 
     bool move ;
 
     private void Start(){
+        penCanvas.OnPenCanvasLeftClickEvent += AddDot;
+        lines     = new List <LineController>();
+        linesTemp = new List <LineController>();
+        skeletons = new List<List<LineController>>();
+        counter     = 0 ;
+        pupId       = 0 ;
+        lineCounter = 0 ;
+        dX = 0 ; 
+        dY = 0 ; 
+        prevX = 0 ; 
+        prevY = 0 ; 
+        move = false;
+        prevCenter = new Vector3(0,0,0);
         
-            penCanvas.OnPenCanvasLeftClickEvent += AddDot;
-            lines     = new List <LineController>();
-            linesTemp = new List <LineController>();
-            skeletons = new List<List<LineController>>();
-            counter     = 0 ;
-            pupId       = 0 ;
-            lineCounter = 0 ;
-            move = false;
-
     }
 
     private void Update(){
@@ -69,19 +81,35 @@ public class PenTool : MonoBehaviour
             List<LineController> sk1 = skeletons[0]; 
             List<LineController> sk2 = skeletons[1]; 
             for(int i = 0 ; i< sk1.Count ; i++) {
+                center = new Vector3(
+                    (sk1[i].start.transform.position.x + sk1[i].end.transform.position.x) / 2 ,
+                    (sk1[i].start.transform.position.y + sk1[i].end.transform.position.y) / 2 ,
+                    (sk1[i].start.transform.position.z + sk1[i].end.transform.position.z) / 2  
+                );
+                if (prevX != 0 && prevY != 0){
+                    foreach(Triangle triangle in Drawable.output[sk1[i]]){
+                        if (triangle.linesId.Count == 1){
+                            triangle.a = new Vector3(triangle.a.x + (center.x - prevX) , triangle.a.y + (center.y - prevY)  , 0);
+                            triangle.b = new Vector3(triangle.b.x + (center.x - prevX) , triangle.b.y + (center.y - prevY)  , 0);
+                            triangle.c = new Vector3(triangle.c.x + (center.x - prevX) , triangle.c.y + (center.y - prevY)  , 0);
+                        }
+                    }
+                }
+                prevX = center.x;
+                prevY = center.y;
+
                 if ( i == 0 ){
                     sk1[i].start.transform.position = Vector3.Lerp(sk1[i].start.transform.position, sk2[i].start.transform.position, k);
-                    sk1[i].end.transform.position   = Vector3.Lerp(sk1[i].end.transform.position  , sk2[i].end.transform.position, k);
+                    sk1[i].end.transform.position   = Vector3.Lerp(sk1[i].end.transform.position  , sk2[i].end.transform.position  , k);                    
                 }else{
-                    sk1[i].end.transform.position   = Vector3.Lerp(sk1[i].end.transform.position  , sk2[i].end.transform.position, k);
-                }
+                    sk1[i].end.transform.position   = Vector3.Lerp(sk1[i].end.transform.position  , sk2[i].end.transform.position  , k);
+                }                   
             }  
         }
+
         if(Input.GetKeyDown(KeyCode.N)){
             move = false;
         }
-
-        
 
         if(Input.GetKeyDown(KeyCode.K)){
             print("KKKKKKKKKKKKKKKKKKKKKKKKKKKKK");
@@ -211,4 +239,32 @@ public class PenTool : MonoBehaviour
         worldMousePosition.z = 0;
         return worldMousePosition;
     }
+
+    public Vector3 Barycentric(Vector3 a, Vector3 b, Vector3 c, Vector3 p) {
+            Vector3 v0 = b - a;
+            Vector3 v1 = c - a;
+            Vector3 v2 = p - a;
+            float d00 = Vector3.Dot(v0, v0);
+            float d01 = Vector3.Dot(v0, v1);
+            float d11 = Vector3.Dot(v1, v1);
+            float d20 = Vector3.Dot(v2, v0);
+            float d21 = Vector3.Dot(v2, v1);
+            float denom = d00 * d11 - d01 * d01;
+            float v = (d11 * d20 - d01 * d21) / denom;
+            float w = (d00 * d21 - d01 * d20) / denom;
+            float u = 1.0f - v - w;
+            return new Vector3(u, v, w);
+        }
 }
+
+
+    // Vector3 barycentric = Barycentric(triangle.a,triangle.b,triangle.c,center);
+    // float b1New = Vector3.Cross(triangle.b - triangle.a, center - triangle.a).magnitude /
+    //         Vector3.Cross(triangle.b - triangle.a, triangle.c - triangle.a).magnitude;
+    // float b2New = Vector3.Cross(triangle.c - triangle.b, center - triangle.b).magnitude /
+    //         Vector3.Cross(triangle.c - triangle.b, triangle.a - triangle.b).magnitude;
+    // float b3New = Vector3.Cross(triangle.a - triangle.c, center - triangle.c).magnitude /
+    //         Vector3.Cross(triangle.a - triangle.c, triangle.b - triangle.c).magnitude;
+    // triangle.a  = triangle.a + (b1New * (center - triangle.a));
+    // triangle.b  = triangle.b + (b2New * (center - triangle.b));
+    // triangle.c  = triangle.c + (b3New * (center - triangle.c));
