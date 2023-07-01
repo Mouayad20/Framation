@@ -41,7 +41,7 @@ namespace mattatz.Triangulation2DSystem.Example {
 						if (Drawable.link.triangles[t].linesId.Count > 1 )
 							GL.Color(Color.black);
 						else
-							GL.Color(Color.red);
+							GL.Color(Drawable.link.triangles[t].color);
 
 						GL.Vertex(Drawable.link.triangles[t].a);
 						GL.Vertex(Drawable.link.triangles[t].b);

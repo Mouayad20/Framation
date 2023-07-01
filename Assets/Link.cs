@@ -201,12 +201,12 @@ public class Link : MonoBehaviour {
             // then we will consider it as connected to this triangle
             foreach (LineController line in lines)
             {
+                
                 if (distance[(line.id, triangle.id)] - minimumDistance <= epsilon)
                 {
                     if (!lineTriangles.ContainsKey(line))
                         lineTriangles[line] = new List<Triangle>();
                     triangle.linesId.Add(line.id);
-                    // triangle.color = new Color(Random.value, Random.value, Random.value, 1.0f);
                     lineTriangles[line].Add(triangle);
                 }
             }
@@ -218,12 +218,12 @@ public class Link : MonoBehaviour {
 
         /// ---------- here you have to fill the output from the lineTriangles dictionary --------- ///
 
-        // foreach (KeyValuePair<LineController, List<Triangle>> kvp in lineTriangles){
-        //     OutputLink outputLink = new OutputLink();
-        //     outputLink.line = kvp.Key;
-        //     outputLink.triangles = kvp.Value;
-        //     output.Add(outputLink);
-        // }
+        foreach (KeyValuePair<LineController, List<Triangle>> kvp in lineTriangles){
+            Color coco = new Color(Random.value, Random.value, Random.value, 1.0f);
+            foreach(Triangle triangle in kvp.Value){
+                triangle.color = coco;
+            }
+        }
         return lineTriangles;
     }
 

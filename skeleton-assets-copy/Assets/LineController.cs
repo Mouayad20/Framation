@@ -6,19 +6,13 @@ public class LineController : MonoBehaviour
 {
     public int id;
     private LineRenderer lr;
-    public  DotController start;
-    public  DotController end;
-    public float prevX;
-    public float prevY;
-    public float angle;
+    public DotController start;
+    public DotController end;
 
     private void Awake(){
         lr = GetComponent <LineRenderer>();
         lr.positionCount = 0;
         id = 0 ;
-        prevX = 0 ;
-        prevY = 0 ;
-        angle = 0 ;
     }
 
     public void SetStart(DotController dot, int dotId){
