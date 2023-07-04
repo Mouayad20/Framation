@@ -145,5 +145,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   id: 0
+  lr: {fileID: 0}
   start: {fileID: 0}
   end: {fileID: 0}
+  prevX: 0
+  prevY: 0
+  angle: 0

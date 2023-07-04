@@ -388,6 +388,7 @@ namespace FreeDraw
                     var go = Instantiate(prefab);
                     go.transform.SetParent(transform, false);
                     go.GetComponent<DemoMesh>().SetTriangulation(triangulation);
+                    Transform tito = go.GetComponent<DemoMesh>().transform;
                     globalMesh = go.GetComponent<DemoMesh>().mesh;
                     int[] trianglesPoints = globalMesh.triangles;
                     int id = 0 ;
@@ -398,6 +399,7 @@ namespace FreeDraw
                         triangle.a = globalMesh.vertices[trianglesPoints[i + 0]];
                         triangle.b = globalMesh.vertices[trianglesPoints[i + 1]];
                         triangle.c = globalMesh.vertices[trianglesPoints[i + 2]];
+                        triangle.triangleTransform = tito;
                         triangles.Add(triangle);
                         id = id + 1 ;
 				    }

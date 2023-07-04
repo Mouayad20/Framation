@@ -89,14 +89,12 @@ public class PenTool : MonoBehaviour
             float distance = Vector3.Distance(sk1[0].start.transform.position, sk2[0].start.transform.position);
             
             for(int i = 0 ; i< sk1.Count ; i++) {
-                // if (!((distance >= 0.00) && (distance <= 0.01))){
+                if (!((distance >= 0.00) && (distance <= 0.01))){
                     center = new Vector3(
                         (sk1[i].start.transform.position.x + sk1[i].end.transform.position.x) / 2 ,
                         (sk1[i].start.transform.position.y + sk1[i].end.transform.position.y) / 2 ,
                         (sk1[i].start.transform.position.z + sk1[i].end.transform.position.z) / 2  
                     );
-                    Vector2 vectorA = new Vector2(sk1[i].start.transform.position.x  , sk1[i].start.transform.position.y );
-                    Vector2 vectorB = new Vector2(sk1[i].end.transform.position.x    , sk1[i].end.transform.position.y   );
                     Vector2 line1Direction  = sk1[i].end.transform.position - sk1[i].start.transform.position;
                     if ( i == 0 ){
                         sk1[i].start.transform.position = Vector3.Lerp(sk1[i].start.transform.position, sk2[i].start.transform.position, k);
@@ -105,16 +103,10 @@ public class PenTool : MonoBehaviour
                         sk1[i].end.transform.position   = Vector3.Lerp(sk1[i].end.transform.position  , sk2[i].end.transform.position  , k);
                     } 
                     Vector2 line2Direction  = sk1[i].end.transform.position - sk1[i].start.transform.position;
-                    float angleMomo = Vector3.Angle(line1Direction, line2Direction);
-                    print(">>>>>   : " + angleMomo);
-                    Vector2 vectorC = new Vector2(sk1[i].start.transform.position.x  , sk1[i].start.transform.position.y );
-                    Vector2 vectorD = new Vector2(sk1[i].end.transform.position.x    , sk1[i].end.transform.position.y   );
-                    // print("Angel : " + CalculateAngle(vectorA, vectorB, vectorC, vectorD)); 
-                    // sk1[i].angle = CalculateAngle(vectorA, vectorB, vectorC, vectorD)*100;
                     sk1[i].angle = Vector3.Angle(line1Direction, line2Direction);
                     if (sk1[i].prevX != 0 && sk1[i].prevY != 0){
                         foreach(Triangle triangle in Drawable.output[sk1[i]]){
-                            // if (triangle.linesId.Count == 1){
+                            if (triangle.linesId.Count == 1){ 
                                 // triangle.a = new Vector3(triangle.a.x + (center.x - sk1[i].prevX) , triangle.a.y + (center.y - sk1[i].prevY)  , 0);
                                 // triangle.b = new Vector3(triangle.b.x + (center.x - sk1[i].prevX) , triangle.b.y + (center.y - sk1[i].prevY)  , 0);
                                 // triangle.c = new Vector3(triangle.c.x + (center.x - sk1[i].prevX) , triangle.c.y + (center.y - sk1[i].prevY)  , 0);
@@ -122,35 +114,26 @@ public class PenTool : MonoBehaviour
                                 // triangle.b = (Quaternion.Euler(new Vector3(0,0, angleMomo)) * triangle.b ) + new Vector3(triangle.b.x + (center.x - sk1[i].prevX) , triangle.b.y + (center.y - sk1[i].prevY)  , 0);
                                 // triangle.c = (Quaternion.Euler(new Vector3(0,0, angleMomo)) * triangle.c ) + new Vector3(triangle.c.x + (center.x - sk1[i].prevX) , triangle.c.y + (center.y - sk1[i].prevY)  , 0);
                                 
-                               
-                                // Vector3 translation = new Vector3((center.x - sk1[i].prevX), (center.y - sk1[i].prevY), 0f);
-                                // Vector3 rotation    = new Vector3(0,0, angleMomo);
-                                // triangle.a = TransformVectorTransRota(triangle.a, translation , rotation);
-                                // triangle.b = TransformVectorTransRota(triangle.b, translation , rotation);
-                                // triangle.c = TransformVectorTransRota(triangle.c, translation , rotation);
-                                // triangle.a = GeometricTransformation(triangle.a, 0.1f , new Vector3(0.1f,0.1f,0 ) ,sk1[i].angle);
-                                // triangle.b = GeometricTransformation(triangle.b, 0.1f , new Vector3(0.1f,0.1f,0 ) ,sk1[i].angle);
-                                // triangle.c = GeometricTransformation(triangle.c, 0.1f , new Vector3(0.1f,0.1f,0 ) ,sk1[i].angle);
-                                // Vector3 translation = new Vector3((center.x - sk1[i].prevX), (center.y - sk1[i].prevY),0);
-                                // Vector3 rotation    = new Vector3(0,0, sk1[i].angle*100);
-                                // Vector3 scale       = new Vector3(1, 1, 0);
-                                // triangle.a = CalculateTransformedVector(triangle.a, translation, rotation, scale);
-                                // triangle.b = CalculateTransformedVector(triangle.b, translation, rotation, scale);
-                                // triangle.c = CalculateTransformedVector(triangle.c, translation, rotation, scale);
-                                Matrix4x4 transformationMatrix = Matrix4x4.identity;
-                                Vector3 translation = new Vector3((center.x - sk1[i].prevX), (center.y - sk1[i].prevY), 0f);
-                                Quaternion rotation = Quaternion.Euler(0f, 0f,angleMomo );
-                                Vector3 scale = new Vector3(1f, 1f, 0);
-                                transformationMatrix.SetTRS(translation, rotation, scale);
-                                triangle.a = transformationMatrix.MultiplyPoint(triangle.a);
-                                triangle.b = transformationMatrix.MultiplyPoint(triangle.b);
-                                triangle.c = transformationMatrix.MultiplyPoint(triangle.c);
-                            // }
+                                // triangle.triangleTransform.SetParent(sk1[i].transform);
+
+                                triangle.triangleTransform.position   = sk1[i].transform.TransformPoint(Vector3.zero)    ;
+                                triangle.triangleTransform.rotation   = sk1[i].transform.rotation   ;
+                                triangle.triangleTransform.localScale = sk1[i].transform.localScale ;
+                                
+                                // Matrix4x4 transformationMatrix = Matrix4x4.identity;
+                                // Vector3 translation = new Vector3(0,06, 0f);
+                                // Quaternion rotation = Quaternion.Euler(0f, 0f,sk1[i].angle );
+                                // Vector3 scale = new Vector3(1f, 1f, 0);
+                                // transformationMatrix.SetTRS(translation, rotation, scale);
+                                // triangle.a = transformationMatrix.MultiplyPoint(triangle.a);
+                                // triangle.b = transformationMatrix.MultiplyPoint(triangle.b);
+                                // triangle.c = transformationMatrix.MultiplyPoint(triangle.c);
+                            }
                         }
                     }
                     sk1[i].prevX = center.x;
                     sk1[i].prevY = center.y;
-                // }                  
+                }                  
             }  
         }
         // if(move){
@@ -254,7 +237,7 @@ public class PenTool : MonoBehaviour
         }
     }
 
-    private void AddDot() {   
+    private void AddDot() {
         if (!Drawable.isDrawing){
             if(counter == 0 ) {
                 DotController dot = Instantiate(dotPrefab , GetMousePosition(), Quaternion.identity, dotParent).GetComponent<DotController>();
