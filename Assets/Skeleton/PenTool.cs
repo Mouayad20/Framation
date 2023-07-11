@@ -58,6 +58,7 @@ public class PenTool : MonoBehaviour
         prevCenter = new Vector3(0,0,0);
         prevVector = new Vector2(0,0);
         index = 0 ;
+        soso = true;
         
     }
 
@@ -104,32 +105,157 @@ public class PenTool : MonoBehaviour
                     } 
                     Vector2 line2Direction  = sk1[i].end.transform.position - sk1[i].start.transform.position;
                     sk1[i].angle = Vector3.Angle(line1Direction, line2Direction);
-                    if (sk1[i].prevX != 0 && sk1[i].prevY != 0){
-                        foreach(Triangle triangle in Drawable.output[sk1[i]]){
-                            if (triangle.linesId.Count == 1){ 
-                                // triangle.a = new Vector3(triangle.a.x + (center.x - sk1[i].prevX) , triangle.a.y + (center.y - sk1[i].prevY)  , 0);
-                                // triangle.b = new Vector3(triangle.b.x + (center.x - sk1[i].prevX) , triangle.b.y + (center.y - sk1[i].prevY)  , 0);
-                                // triangle.c = new Vector3(triangle.c.x + (center.x - sk1[i].prevX) , triangle.c.y + (center.y - sk1[i].prevY)  , 0);
-                                // triangle.a = (Quaternion.Euler(new Vector3(0,0, angleMomo)) * triangle.a ) + new Vector3(triangle.a.x + (center.x - sk1[i].prevX) , triangle.a.y + (center.y - sk1[i].prevY)  , 0);
-                                // triangle.b = (Quaternion.Euler(new Vector3(0,0, angleMomo)) * triangle.b ) + new Vector3(triangle.b.x + (center.x - sk1[i].prevX) , triangle.b.y + (center.y - sk1[i].prevY)  , 0);
-                                // triangle.c = (Quaternion.Euler(new Vector3(0,0, angleMomo)) * triangle.c ) + new Vector3(triangle.c.x + (center.x - sk1[i].prevX) , triangle.c.y + (center.y - sk1[i].prevY)  , 0);
-                                
-                                // triangle.triangleTransform.SetParent(sk1[i].transform);
 
-                                triangle.triangleTransform.position   = sk1[i].transform.TransformPoint(Vector3.zero)    ;
-                                triangle.triangleTransform.rotation   = sk1[i].transform.rotation   ;
-                                triangle.triangleTransform.localScale = sk1[i].transform.localScale ;
-                                
-                                // Matrix4x4 transformationMatrix = Matrix4x4.identity;
-                                // Vector3 translation = new Vector3(0,06, 0f);
-                                // Quaternion rotation = Quaternion.Euler(0f, 0f,sk1[i].angle );
-                                // Vector3 scale = new Vector3(1f, 1f, 0);
-                                // transformationMatrix.SetTRS(translation, rotation, scale);
-                                // triangle.a = transformationMatrix.MultiplyPoint(triangle.a);
-                                // triangle.b = transformationMatrix.MultiplyPoint(triangle.b);
-                                // triangle.c = transformationMatrix.MultiplyPoint(triangle.c);
+
+                    if (sk1[i].prevX != 0 && sk1[i].prevY != 0){
+                        Vector3    linePosition    = sk1[i].transform.position;
+                        Quaternion lineRotation = sk1[i].transform.rotation;
+                        Vector3    lineScale       = sk1[i].transform.localScale;
+
+                        
+                            foreach(Triangle triangle in Drawable.output[sk1[i]]){
+                                // if (triangle.linesId.Count == 1){ 
+                                    // print("__________________");
+                                    // print("sk1[i].scale                >>>>>>>  " +  sk1[i].scale.normalized );
+                                    print("sk1[i].scale      >>>>>>>  " +  sk1[i].scale );
+                                    // print("scallionChange    >>>>>>>  " +  sk1[i].scallionChange );
+                                    // print("sk1[i].transform.localScale >>>>>>>  " +  sk1[i].transform.localScale );
+                                    // print("sk1[i].normalized.localScale >>>>>>>  " +  sk1[i].transform.localScale.normalized  );
+                                    // print(">>>>>Euler>>  " + Quaternion.Euler(0f, 0f,  sk1[i].angle) * triangle.a );
+
+                                    
+
+
+                                    
+                                    // Matrix4x4 matrix = Matrix4x4.TRS(
+                                    //     Vector3.zero,
+                                    //     Quaternion.Euler(0f, 0f, 0f),
+                                    //     sk1[i].scale
+                                    // );
+                                    // triangle.a = matrix.MultiplyPoint3x4(triangle.a);
+                                    // triangle.b = matrix.MultiplyPoint3x4(triangle.b);
+                                    // triangle.c = matrix.MultiplyPoint3x4(triangle.c);
+
+                                    triangle.a = triangle.a - center ; 
+                                    triangle.b = triangle.b - center ; 
+                                    triangle.c = triangle.c - center ;
+
+                                    triangle.a = new Vector3(
+                                        triangle.a.x * sk1[i].scale.x,
+                                        triangle.a.y * sk1[i].scale.y,
+                                        0
+                                    );
+                                    triangle.b = new Vector3(
+                                        triangle.b.x * sk1[i].scale.x,
+                                        triangle.b.y * sk1[i].scale.y,
+                                        0
+                                    );
+                                    triangle.c = new Vector3(
+                                        triangle.c.x * sk1[i].scale.x,
+                                        triangle.c.y * sk1[i].scale.y,
+                                        0
+                                    );
+
+                                    triangle.a = triangle.a + sk1[i].positionChange ;
+                                    triangle.b = triangle.b + sk1[i].positionChange ;
+                                    triangle.c = triangle.c + sk1[i].positionChange ;
+                                    
+                                    // triangle.a = Quaternion.Euler(0f, 0f,  sk1[i].rotationChange) * triangle.a ;
+                                    // triangle.b = Quaternion.Euler(0f, 0f,  sk1[i].rotationChange) * triangle.b ;
+                                    // triangle.c = Quaternion.Euler(0f, 0f,  sk1[i].rotationChange) * triangle.c ;
+        
+                                    triangle.a = triangle.a + center ; 
+                                    triangle.b = triangle.b + center ; 
+                                    triangle.c = triangle.c + center ;
+
+
+
+
+                                    // triangle.a = triangle.a + Vector3.Scale(center, sk1[i].scale) ;
+                                    // triangle.b = triangle.b + Vector3.Scale(center, sk1[i].scale) ;
+                                    // triangle.c = triangle.c + Vector3.Scale(center, sk1[i].scale) ;
+
+
+                                    // print("before :  " + triangle.a) ;
+                                    // triangle.a = new Vector3(
+                                    //     triangle.a.x * 1.1f,
+                                    //     triangle.a.y * 1.1f,
+                                    //     0
+                                    // );
+                                    // print("after  :  " + triangle.a) ;
+                                    // triangle.b = new Vector3(
+                                    //     triangle.b.x * 1.1f,
+                                    //     triangle.b.y * 1.1f,
+                                    //     0
+                                    // );
+                                    // triangle.c = new Vector3(
+                                    //     triangle.c.x * 1.1f,
+                                    //     triangle.c.y * 1.1f,
+                                    //     0
+                                    // );
+                                    
+                                    // GameObject triangleObject = new GameObject("Triangle");
+                                    // print("________________");
+                                    // print("id         :  " + triangle.id);
+                                    // print("position   :  " + triangle.triangleTransform.position);
+                                    // print("rotation   :  " + triangle.triangleTransform.rotation);
+                                    // print("localScale :  " + triangle.triangleTransform.localScale);
+                                    // triangle.triangleTransform.position   = linePosition ;
+                                    // triangle.triangleTransform.rotation   = lineRotation ;
+                                    // triangle.triangleTransform.localScale = lineScale    ;
+
+                                    // Vector3 transformedPosition = linePosition + (lineRotation * Vector3.Scale(triangle.triangleTransform.localPosition , lineScale));
+                                    // Quaternion transformedRotation = lineRotation * triangle.triangleTransform.localRotation;
+                                    // Vector3 transformedScale = Vector3.Scale(lineScale, triangle.triangleTransform.localScale);
+                                    // triangle.triangleTransform.position = transformedPosition;
+                                    // triangle.triangleTransform.rotation = transformedRotation;
+                                    // triangle.triangleTransform.localScale = transformedScale;
+
+                                    // triangle.a = triangle.a + sk1[i].transform.TransformPoint(Vector3.zero);
+                                    // triangle.b = triangle.b + sk1[i].transform.TransformPoint(Vector3.zero);
+                                    // triangle.c = triangle.c + sk1[i].transform.TransformPoint(Vector3.zero);
+
+                                    // triangle.triangleTransform.SetParent(sk1[i].transform);
+
+                                    // triangle.a   = sk1[i].transform.position   ;
+                                    // triangle.b   = sk1[i].transform.position   ;
+                                    // triangle.c   = sk1[i].transform.position   ;
+
+                                    // triangle.triangleTransform.rotation   = sk1[i].transform.rotation   ;
+                                    // triangle.triangleTransform.localScale = sk1[i].transform.localScale ;
+                                    // print("before :  " + triangle.a);
+                                    // Vector3 triangleLocalPosition = triangle.triangleTransform.TransformPoint(triangle.a);
+                                    // Vector3 newTrianglePosition = linePosition + (lineRotation * Vector3.Scale(triangleLocalPosition , lineScale));
+                                    // triangle.a = triangle.triangleTransform.InverseTransformPoint(newTrianglePosition);
+                                    // print("after :  " + triangle.a);
+                                    
+                                    // Vector3 triangleLocalPosition = triangle.triangleTransform.localPosition;
+                                    // Quaternion triangleLocalRotation = triangle.triangleTransform.localRotation;
+                                    // Vector3 triangleLocalScale = triangle.triangleTransform.localScale;
+
+                                    // Vector3 eulerRotation = lineRotation.eulerAngles;
+                                    // Vector3 scaledRotation = Vector3.Scale(eulerRotation, triangleLocalPosition);
+                                    // Vector3 scaledPosition = Vector3.Scale(scaledRotation, lineScale);
+
+                                    // Vector3 newTrianglePosition = linePosition + scaledPosition;
+                                    // Quaternion newTriangleRotation = lineRotation * triangleLocalRotation;
+                                    // Vector3 newTriangleScale = Vector3.Scale(lineScale, triangleLocalScale);
+
+                                    // triangle.triangleTransform.position = newTrianglePosition;
+                                    // triangle.triangleTransform.rotation = newTriangleRotation;
+                                    // triangle.triangleTransform.localScale = newTriangleScale;
+
+                                    // Matrix4x4 transformationMatrix = Matrix4x4.identity;
+                                    // Vector3 translation = new Vector3(0,06, 0f);
+                                    // Quaternion rotation = Quaternion.Euler(0f, 0f,sk1[i].rotation );
+                                    // Vector3 scale = new Vector3(1f, 1f, 0);
+                                    // transformationMatrix.CalculateTransformedVector(linePosition,rotation , lineScale);
+                                    // triangle.a = CalculateTransformedVector(triangle.a , linePosition , lineRotation , lineScale);
+                                    // triangle.b = CalculateTransformedVector(triangle.b , linePosition , lineRotation , lineScale);
+                                    // triangle.c = CalculateTransformedVector(triangle.c , linePosition , lineRotation , lineScale);
+                                // }
                             }
-                        }
+                        
                     }
                     sk1[i].prevX = center.x;
                     sk1[i].prevY = center.y;
@@ -235,6 +361,17 @@ public class PenTool : MonoBehaviour
             prevDot = null;
             dot = null;
         }
+    }
+    
+    private Vector3 RotateVectorV11(Vector3 vector,float angle){
+        // Convert the rotation axis and angle into a Quaternion
+        // Quaternion rotation = Quaternion.AngleAxis(angle, new Vector3(0f, 0f, 1f).normalized);
+        Quaternion rotation = Quaternion.Euler(0f, 0f, angle);
+
+        // Rotate the vector using the Quaternion
+        Vector3 rotatedVector = rotation * vector;
+
+        return rotatedVector;
     }
 
     private void AddDot() {
@@ -447,15 +584,3 @@ public class PenTool : MonoBehaviour
             return new Vector3(u, v, w);
         }
 }
-
-
-    // Vector3 barycentric = Barycentric(triangle.a,triangle.b,triangle.c,center);
-    // float b1New = Vector3.Cross(triangle.b - triangle.a, center - triangle.a).magnitude /
-    //         Vector3.Cross(triangle.b - triangle.a, triangle.c - triangle.a).magnitude;
-    // float b2New = Vector3.Cross(triangle.c - triangle.b, center - triangle.b).magnitude /
-    //         Vector3.Cross(triangle.c - triangle.b, triangle.a - triangle.b).magnitude;
-    // float b3New = Vector3.Cross(triangle.a - triangle.c, center - triangle.c).magnitude /
-    //         Vector3.Cross(triangle.a - triangle.c, triangle.b - triangle.c).magnitude;
-    // triangle.a  = triangle.a + (b1New * (center - triangle.a));
-    // triangle.b  = triangle.b + (b2New * (center - triangle.b));
-    // triangle.c  = triangle.c + (b3New * (center - triangle.c));

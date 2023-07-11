@@ -45,19 +45,19 @@ namespace mattatz.Triangulation2DSystem.Example {
 						else
 							GL.Color(Drawable.link.triangles[t].color);
 
-						GL.Vertex(Drawable.link.triangles[t].a + Drawable.link.triangles[t].triangleTransform.position);
-						GL.Vertex(Drawable.link.triangles[t].b + Drawable.link.triangles[t].triangleTransform.position);
-						GL.Vertex(Drawable.link.triangles[t].c + Drawable.link.triangles[t].triangleTransform.position);
+						GL.Vertex(Drawable.link.triangles[t].a);
+						GL.Vertex(Drawable.link.triangles[t].b);
+						GL.Vertex(Drawable.link.triangles[t].c);
 					GL.End();
 
 					GL.Begin(GL.LINES);
 					GL.Color(Color.yellow);
-						GL.Vertex(Drawable.link.triangles[t].a + Drawable.link.triangles[t].triangleTransform.position);
-						GL.Vertex(Drawable.link.triangles[t].b + Drawable.link.triangles[t].triangleTransform.position);
-						GL.Vertex(Drawable.link.triangles[t].b + Drawable.link.triangles[t].triangleTransform.position);
-						GL.Vertex(Drawable.link.triangles[t].c + Drawable.link.triangles[t].triangleTransform.position);
-						GL.Vertex(Drawable.link.triangles[t].c + Drawable.link.triangles[t].triangleTransform.position);
-						GL.Vertex(Drawable.link.triangles[t].a + Drawable.link.triangles[t].triangleTransform.position);
+						GL.Vertex(Drawable.link.triangles[t].a);
+						GL.Vertex(Drawable.link.triangles[t].b);
+						GL.Vertex(Drawable.link.triangles[t].b);
+						GL.Vertex(Drawable.link.triangles[t].c);
+						GL.Vertex(Drawable.link.triangles[t].c);
+						GL.Vertex(Drawable.link.triangles[t].a);
 					GL.End();
 					// 	}
 					// }
