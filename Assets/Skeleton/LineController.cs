@@ -18,6 +18,7 @@ public class LineController : MonoBehaviour
     public Vector3 previousPosition;
     public Vector3 positionChange;
     public float previousRotation;
+    public float previousDistance;
     public float previousDistanceX;
     public float previousDistanceY;
     public float rotationChange;
@@ -38,8 +39,9 @@ public class LineController : MonoBehaviour
         previousPosition = transform.position;
         previousRotation = 0;
         previousScallion = new Vector3(1f,1f,1f);
-        previousDistanceX = start.transform.position.x - end.transform.position.x;
-        previousDistanceY = start.transform.position.y - end.transform.position.y;
+        previousDistanceX = end.transform.position.x - start.transform.position.x;
+        previousDistanceY = end.transform.position.y - start.transform.position.y;
+        previousDistance = 1;
     }
 
     public void SetStart(DotController dot, int dotId){
@@ -62,7 +64,7 @@ public class LineController : MonoBehaviour
         }
     }
 
-    private void CalculateLineChanges() {
+    public void CalculateLineChanges() {
 
 
         position = (start.transform.position + end.transform.position) / 2f;
@@ -72,22 +74,42 @@ public class LineController : MonoBehaviour
         rotation = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         rotationChange = rotation - previousRotation;
 
-        float distance = Vector2.Distance(start.transform.position, end.transform.position);
-        float currentDistanceX = start.transform.position.x - end.transform.position.x;
-        float currentDistanceY = start.transform.position.y - end.transform.position.y;
-        float scaleX = currentDistanceX / previousDistanceX;
-        float scaleY = currentDistanceY / previousDistanceY;
+        float distance = Vector3.Distance(start.transform.position, end.transform.position);
 
-        scale = new Vector3(scaleX,scaleY, 1f);
-        scallionChange = new Vector3(scale.x / previousScallion.x,scale.y / previousScallion.y,1f);
+        float currentDistanceX = end.transform.position.x - start.transform.position.x;
+        float currentDistanceY = end.transform.position.y - start.transform.position.y;
 
-        lr.transform.position   = position;
-        lr.transform.rotation   = Quaternion.Euler(0f, 0f, rotation);
-        lr.transform.localScale = scale;
+     /*    
+        if(currentDistanceX < 0 ) {
+            currentDistanceX = -1 * currentDistanceX;
+        }
+        if(currentDistanceY < 0 ) {
+            currentDistanceY = -1 * currentDistanceY;
+        }
+        float scaleX = currentDistanceX / previousDistanceX ;
+        float scaleY = currentDistanceY / previousDistanceY ;
+        if(scaleY < 0 ) {
+            scaleY = -1 * scaleY ;
+        }
+        if(scaleX < 0 ) {
+            scaleX = -1 * scaleX ;
+        }
+
+        scaleX = 1 ;
+     */
+        // if(currentDistanceX > previousDistanceX){
+        //     scale = new Vector3(1f , distance/previousDistance , 1f);
+        // }
+        // if(currentDistanceY > previousDistanceY){
+        //     scale = new Vector3(distance/previousDistance , 1f , 1f);
+        // }
+        scale = new Vector3(distance/previousDistance , distance/previousDistance , 1f);
         
-        previousPosition = position;
-        previousRotation = rotation;
-        previousScallion = scale;
+        previousDistance = distance;
+        
+        previousPosition  = position;
+        previousRotation  = rotation;
+        previousScallion  = scale;
         previousDistanceX = currentDistanceX;
         previousDistanceY = currentDistanceY;
     }
