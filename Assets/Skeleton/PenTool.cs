@@ -80,16 +80,8 @@ public class PenTool : MonoBehaviour
                 selectDot = false;
             }
         } 
-        if(Input.GetKeyDown(KeyCode.W)){
-            // print("lines size : " + lines.Count);
-            // print("temps size : " + linesTemp.Count);
-            // print("newws size : " + linesNew.Count);
-            // for(int i = 0 ; i< lines.Count ; i++) {
-            //     print("line ( " + lines[i].id + " )  :  {  ( " +lines[i].start.id + " , " + +lines[i].end.id + " )  } ");  
-            // }
-        }
         if(Input.GetKeyDown(KeyCode.M)){
-            move = true;           
+            move = !move;           
         }
         if(move){
             if(k >= 1.0f){
@@ -100,8 +92,8 @@ public class PenTool : MonoBehaviour
             List<LineController> sk2 = skeletons[1]; 
             float distance = Vector3.Distance(sk1[0].start.transform.position, sk2[0].start.transform.position);
             
-            for(int i = 0 ; i< sk1.Count ; i++) {
-                if (!((distance >= 0.00) && (distance <= 0.01))){
+            if (!((distance >= 0.00) && (distance <= 0.01))){
+                for(int i = 0 ; i< sk1.Count ; i++) {
                     center = new Vector3(
                         (sk1[i].start.transform.position.x + sk1[i].end.transform.position.x) / 2 ,
                         (sk1[i].start.transform.position.y + sk1[i].end.transform.position.y) / 2 ,
@@ -116,19 +108,41 @@ public class PenTool : MonoBehaviour
                     } 
 
                     foreach(Triangle triangle in Drawable.output[sk1[i]]){
-                        
-                        triangle.Shift(center,Operation.Minus);
-
-                        triangle.TransformationSTR(sk1[i].scale,sk1[i].positionChange,sk1[i].rotationChange);
-
-                        triangle.Shift(center,Operation.Add);
-                        
+                        if(triangle.lines.Count  == 1){
+                            triangle.Shift(center,Operation.Minus);
+                            triangle.TransformationSTR(
+                                sk1[i].scale,
+                                sk1[i].positionChange,
+                                sk1[i].rotationChange
+                            );
+                            triangle.Shift(center,Operation.Add);
+                        }
                     }
                 }                  
+                foreach(Triangle triangle in Drawable.link.triangles){
+                    if(triangle.lines.Count  > 1){
+                        avgScale = new Vector3(0,0,0) ;
+                        sumScale = new Vector3(0,0,0) ;
+                        avgTranslate = new Vector3(0,0,0) ;
+                        sumTranslate = new Vector3(0,0,0) ;
+                        avgRotate = 0 ;
+                        sumRotate = 0 ;
+                        for(int l = 0 ; l < triangle.lines.Count ; l++) {
+                            sumScale     += triangle.lines[l].scale;
+                            sumTranslate += triangle.lines[l].positionChange;
+                            sumRotate    += triangle.lines[l].rotationChange;
+                        }
+
+                        avgScale     = sumScale     / triangle.lines.Count;
+                        avgTranslate = sumTranslate / triangle.lines.Count;
+                        avgRotate    = sumRotate    / triangle.lines.Count;
+
+                            triangle.Shift(center,Operation.Minus);
+                            triangle.TransformationSTR( avgScale , avgTranslate  , avgRotate );
+                            triangle.Shift(center,Operation.Add);
+                    }                       
+                }
             }  
-        }
-        if(Input.GetKeyDown(KeyCode.N)){
-            move = false;
         }
 
         if(Input.GetKeyDown(KeyCode.K)){
@@ -261,54 +275,4 @@ public class PenTool : MonoBehaviour
         return worldMousePosition;
     }
 
-}  /*   if(
-                            ((sk2[i].end.transform.position.y - sk2[i].start.transform.position.y) >= -0.5 ) &&
-                            ((sk2[i].end.transform.position.y - sk2[i].start.transform.position.y) <= 0.5 )
-                        ){
-                            triangle.a = new Vector3(
-                                triangle.a.x * sk1[i].scale.x,
-                                triangle.a.y ,
-                                0
-                            );
-                            triangle.b = new Vector3(
-                                triangle.b.x * sk1[i].scale.x,
-                                triangle.b.y ,
-                                0
-                            );
-                            triangle.c = new Vector3(
-                                triangle.c.x * sk1[i].scale.x,
-                                triangle.c.y ,
-                                0
-                            );
-                        }
-                        else{
-                            triangle.a = new Vector3(
-                                triangle.a.x * sk1[i].scale.x,
-                                triangle.a.y * sk1[i].scale.y,
-                                0
-                            );
-                            triangle.b = new Vector3(
-                                triangle.b.x * sk1[i].scale.x,
-                                triangle.b.y * sk1[i].scale.y,
-                                0
-                            );
-                            triangle.c = new Vector3(
-                                triangle.c.x * sk1[i].scale.x,
-                                triangle.c.y * sk1[i].scale.y,
-                                0
-                            );
-                        } */
-
-
-                        
-                        // Matrix4x4 matrix = Matrix4x4.TRS(
-                        //     Vector3.zero,
-                        //     Quaternion.Euler(0f, 0f, 0f),
-                        //     sk1[i].scale
-                        // );
-                        // triangle.a = matrix.MultiplyPoint3x4(triangle.a);
-                        // triangle.b = matrix.MultiplyPoint3x4(triangle.b);
-                        // triangle.c = matrix.MultiplyPoint3x4(triangle.c);
-
-
-                        
+}

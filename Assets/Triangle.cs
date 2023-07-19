@@ -11,12 +11,12 @@ public class Triangle  : MonoBehaviour {
 
     public int id ;
     public Vector3 a,b,c;
-    public List<int> linesId;
+    public List<LineController> lines;
     public Color color;
     public Transform triangleTransform;
 
     public Triangle(){
-        linesId = new List<int>();
+        lines = new List<LineController>();
     }
 
     public void Shift(Vector3 center,Operation operation){

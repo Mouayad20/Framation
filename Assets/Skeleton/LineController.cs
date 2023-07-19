@@ -39,8 +39,8 @@ public class LineController : MonoBehaviour
         previousPosition = transform.position;
         previousRotation = 0;
         previousScallion = new Vector3(1f,1f,1f);
-        previousDistanceX = end.transform.position.x - start.transform.position.x;
-        previousDistanceY = end.transform.position.y - start.transform.position.y;
+        previousDistanceX = start.transform.position.x - end.transform.position.x;
+        previousDistanceY = start.transform.position.y - end.transform.position.y;
         previousDistance = 1;
     }
 
@@ -66,19 +66,16 @@ public class LineController : MonoBehaviour
 
     public void CalculateLineChanges() {
 
-
         position = (start.transform.position + end.transform.position) / 2f;
         positionChange = position - previousPosition;
 
         Vector2 direction = end.transform.position - start.transform.position;
         rotation = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         rotationChange = rotation - previousRotation;
-
-        float distance = Vector3.Distance(start.transform.position, end.transform.position);
-
-        float currentDistanceX = end.transform.position.x - start.transform.position.x;
-        float currentDistanceY = end.transform.position.y - start.transform.position.y;
-
+        float currentDistanceX = start.transform.position.x - end.transform.position.x;
+        float currentDistanceY = start.transform.position.y - end.transform.position.y;
+        float scaleX = 1 ;
+        float scaleY = 1 ;
      /*    
         if(currentDistanceX < 0 ) {
             currentDistanceX = -1 * currentDistanceX;
@@ -97,20 +94,26 @@ public class LineController : MonoBehaviour
 
         scaleX = 1 ;
      */
-        // if(currentDistanceX > previousDistanceX){
-        //     scale = new Vector3(1f , distance/previousDistance , 1f);
-        // }
-        // if(currentDistanceY > previousDistanceY){
-        //     scale = new Vector3(distance/previousDistance , 1f , 1f);
-        // }
-        scale = new Vector3(distance/previousDistance , distance/previousDistance , 1f);
+        float distance = Vector3.Distance(start.transform.position, end.transform.position);
+
+        if((Mathf.Abs(currentDistanceX) < 0.25)&&(Mathf.Abs(currentDistanceX) > 0)){
+            scaleX = 1 ;
+        }else{
+            scaleY = distance / previousDistance ;
+        }
+        if((Mathf.Abs(currentDistanceY) < 0.25)&&(Mathf.Abs(currentDistanceY) > 0)){
+            scaleY = 1 ;
+        }else{
+            scaleX = distance / previousDistance ;
+        }
+        scale = new Vector3(scaleX,scaleY, 1f);
         
-        previousDistance = distance;
         
         previousPosition  = position;
         previousRotation  = rotation;
         previousScallion  = scale;
-        previousDistanceX = currentDistanceX;
-        previousDistanceY = currentDistanceY;
+        previousDistance  = distance;
+        previousDistanceX  = currentDistanceX;
+        previousDistanceY  = currentDistanceY;
     }
 }

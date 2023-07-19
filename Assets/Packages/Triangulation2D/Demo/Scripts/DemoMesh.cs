@@ -40,7 +40,7 @@ namespace mattatz.Triangulation2DSystem.Example {
 					// for (int o = 0; o < Drawable.output.Count; o++) {
 					// 	for (int i = 0; i < Drawable.output[o].triangles.Count; i++) {
 					GL.Begin(GL.TRIANGLES);
-						if (Drawable.link.triangles[t].linesId.Count > 1 )
+						if (Drawable.link.triangles[t].lines.Count > 1 )
 							GL.Color(Color.black);
 						else
 							GL.Color(Drawable.link.triangles[t].color);

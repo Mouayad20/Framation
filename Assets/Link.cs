@@ -201,13 +201,13 @@ public class Link : MonoBehaviour {
             // then we will consider it as connected to this triangle
             foreach (LineController line in lines)
             {
-                
                 if (distance[(line.id, triangle.id)] - minimumDistance <= epsilon)
                 {
                     if (!lineTriangles.ContainsKey(line))
                         lineTriangles[line] = new List<Triangle>();
-                    triangle.linesId.Add(line.id);
+                    triangle.lines.Add(line);
                     lineTriangles[line].Add(triangle);
+                    break;
                 }
             }
         }
