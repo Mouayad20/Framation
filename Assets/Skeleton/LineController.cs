@@ -76,32 +76,14 @@ public class LineController : MonoBehaviour
         float currentDistanceY = start.transform.position.y - end.transform.position.y;
         float scaleX = 1 ;
         float scaleY = 1 ;
-     /*    
-        if(currentDistanceX < 0 ) {
-            currentDistanceX = -1 * currentDistanceX;
-        }
-        if(currentDistanceY < 0 ) {
-            currentDistanceY = -1 * currentDistanceY;
-        }
-        float scaleX = currentDistanceX / previousDistanceX ;
-        float scaleY = currentDistanceY / previousDistanceY ;
-        if(scaleY < 0 ) {
-            scaleY = -1 * scaleY ;
-        }
-        if(scaleX < 0 ) {
-            scaleX = -1 * scaleX ;
-        }
-
-        scaleX = 1 ;
-     */
         float distance = Vector3.Distance(start.transform.position, end.transform.position);
 
-        if((Mathf.Abs(currentDistanceX) < 0.25)&&(Mathf.Abs(currentDistanceX) > 0)){
+        if((Mathf.Abs(currentDistanceX) < 0.1)&&(Mathf.Abs(currentDistanceX) > 0)){
             scaleX = 1 ;
         }else{
             scaleY = distance / previousDistance ;
         }
-        if((Mathf.Abs(currentDistanceY) < 0.25)&&(Mathf.Abs(currentDistanceY) > 0)){
+        if((Mathf.Abs(currentDistanceY) < 0.1)&&(Mathf.Abs(currentDistanceY) > 0)){
             scaleY = 1 ;
         }else{
             scaleX = distance / previousDistance ;

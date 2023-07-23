@@ -73,6 +73,24 @@ public class PenTool : MonoBehaviour
         soso = true;
     }
 
+    public static unsafe void Mimomomo()
+    {
+        int x = 10;
+        int* p = &x;
+        int* x2 = &x;
+        print("Value of x   : " + x);
+        print("Value of p   : " + *p);
+        print("Value of x2  : " + *x2);
+        x = x + 2 ;
+        print("_________");
+        print("Value of x   : " + x);
+        print("Value of p   : " + *p);
+        print("Value of x2  : " + *x2);
+
+    
+    
+    }
+
     private void Update(){
         if(selectDot){
             if(Input.GetKeyDown(KeyCode.D)){
@@ -82,6 +100,8 @@ public class PenTool : MonoBehaviour
         } 
         if(Input.GetKeyDown(KeyCode.M)){
             move = !move;           
+        }if(Input.GetKeyDown(KeyCode.Q)){
+            Mimomomo();         
         }
         if(move){
             if(k >= 1.0f){
@@ -106,8 +126,7 @@ public class PenTool : MonoBehaviour
                     }else{
                         sk1[i].end.transform.position   = Vector3.Lerp(sk1[i].end.transform.position  , sk2[i].end.transform.position  , k);
                     } 
-
-                    foreach(Triangle triangle in Drawable.output[sk1[i]]){
+                foreach(Triangle triangle in Drawable.output[sk1[i]]){
                         if(triangle.lines.Count  == 1){
                             triangle.Shift(center,Operation.Minus);
                             triangle.TransformationSTR(
@@ -142,6 +161,7 @@ public class PenTool : MonoBehaviour
                             triangle.Shift(center,Operation.Add);
                     }                       
                 }
+                
             }  
         }
 

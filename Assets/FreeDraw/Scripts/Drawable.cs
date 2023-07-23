@@ -393,6 +393,10 @@ namespace FreeDraw
                     int[] trianglesPoints = globalMesh.triangles;
                     int id = 0 ;
                     triangles = new List<Triangle>();
+                    List<
+                    for (int i = 0; i < trianglesPoints.Length; i++){
+                        print("t  : " + trianglesPoints[i]);
+                    }
                     for (int i = 0; i < trianglesPoints.Length; i += 3){
                         Triangle triangle = new Triangle();
                         triangle.id = id ;
@@ -400,6 +404,13 @@ namespace FreeDraw
                         triangle.b = globalMesh.vertices[trianglesPoints[i + 1]];
                         triangle.c = globalMesh.vertices[trianglesPoints[i + 2]];
                         triangle.triangleTransform = tito;
+                        // print("_____________________");
+                        // print("t0 : " + trianglesPoints[i]);
+                        // print("a  : " + triangle.a);
+                        // print("t1 : " + trianglesPoints[i+1]);
+                        // print("b  : " + triangle.b);
+                        // print("t2 : " + trianglesPoints[i+2]);
+                        // print("c  : " + triangle.c);
                         triangles.Add(triangle);
                         id = id + 1 ;
 				    }

@@ -12,10 +12,13 @@ public class Link : MonoBehaviour {
 
     public List<Triangle> triangles ;
     public List<List<LineController>> skeletons;
+    public static Dictionary<(float, float, float), List<int>> pointTrianglesCommon ;
+
 
     public Link(){
         triangles = Drawable.triangles;
         skeletons = PenTool.skeletons ;
+        pointTrianglesCommon = new Dictionary<(float, float, float), List<int>>();
     }
 
     public Dictionary<LineController, List<Triangle>> Linking(){
@@ -46,6 +49,8 @@ public class Link : MonoBehaviour {
             pointTriangles[(triangle.b.x, triangle.b.y, triangle.b.z)].Add(triangle.id);
             pointTriangles[(triangle.c.x, triangle.c.y, triangle.c.z)].Add(triangle.id);
         }
+
+        pointTrianglesCommon = pointTriangles ;
 
 
         // Now we know all triangles that touch a specific point
@@ -176,7 +181,7 @@ public class Link : MonoBehaviour {
 
         // Now we can relate the triangles to their lines in the output
         // Define the epsilon or take it as an argument of the function or access it by any way
-        int epsilon = 0;
+        int epsilon = 1;
 
         // When epsilon == 0, that means we will add each triangle to the closest line
         // and we will add it to many lines if they are with the same closest distance
@@ -207,7 +212,7 @@ public class Link : MonoBehaviour {
                         lineTriangles[line] = new List<Triangle>();
                     triangle.lines.Add(line);
                     lineTriangles[line].Add(triangle);
-                    break;
+                    // break;
                 }
             }
         }
