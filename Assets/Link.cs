@@ -37,17 +37,17 @@ public class Link : MonoBehaviour {
         foreach (Triangle triangle in triangles)
         {
             // Initialize the lists for the points if they don't exist
-            if (!pointTriangles.ContainsKey((triangle.a.x, triangle.a.y, triangle.a.z)))
-                pointTriangles[(triangle.a.x, triangle.a.y, triangle.a.z)] = new List<int>();
-            if (!pointTriangles.ContainsKey((triangle.b.x, triangle.b.y, triangle.b.z)))
-                pointTriangles[(triangle.b.x, triangle.b.y, triangle.b.z)] = new List<int>();
-            if (!pointTriangles.ContainsKey((triangle.c.x, triangle.c.y, triangle.c.z)))
-                pointTriangles[(triangle.c.x, triangle.c.y, triangle.c.z)] = new List<int>();
+            if (!pointTriangles.ContainsKey((triangle.a.vector.x, triangle.a.vector.y, triangle.a.vector.z)))
+                pointTriangles[(triangle.a.vector.x, triangle.a.vector.y, triangle.a.vector.z)] = new List<int>();
+            if (!pointTriangles.ContainsKey((triangle.b.vector.x, triangle.b.vector.y, triangle.b.vector.z)))
+                pointTriangles[(triangle.b.vector.x, triangle.b.vector.y, triangle.b.vector.z)] = new List<int>();
+            if (!pointTriangles.ContainsKey((triangle.c.vector.x, triangle.c.vector.y, triangle.c.vector.z)))
+                pointTriangles[(triangle.c.vector.x, triangle.c.vector.y, triangle.c.vector.z)] = new List<int>();
 
             // Add the triangle to the corresponding points
-            pointTriangles[(triangle.a.x, triangle.a.y, triangle.a.z)].Add(triangle.id);
-            pointTriangles[(triangle.b.x, triangle.b.y, triangle.b.z)].Add(triangle.id);
-            pointTriangles[(triangle.c.x, triangle.c.y, triangle.c.z)].Add(triangle.id);
+            pointTriangles[(triangle.a.vector.x, triangle.a.vector.y, triangle.a.vector.z)].Add(triangle.id);
+            pointTriangles[(triangle.b.vector.x, triangle.b.vector.y, triangle.b.vector.z)].Add(triangle.id);
+            pointTriangles[(triangle.c.vector.x, triangle.c.vector.y, triangle.c.vector.z)].Add(triangle.id);
         }
 
         pointTrianglesCommon = pointTriangles ;
@@ -69,19 +69,19 @@ public class Link : MonoBehaviour {
             neighbors[triangle.id] = new List<int>();
 
             // Add the neighbors of point a
-            foreach (int neighborId in pointTriangles[(triangle.a.x, triangle.a.y, triangle.a.z)]){
+            foreach (int neighborId in pointTriangles[(triangle.a.vector.x, triangle.a.vector.y, triangle.a.vector.z)]){
                 if (!neighbors[triangle.id].Contains(neighborId))
                     neighbors[triangle.id].Add(neighborId);
             }
 
             // Add the neighbors of point b
-            foreach (int neighborId in pointTriangles[(triangle.b.x, triangle.b.y, triangle.b.z)]){
+            foreach (int neighborId in pointTriangles[(triangle.b.vector.x, triangle.b.vector.y, triangle.b.vector.z)]){
                 if (!neighbors[triangle.id].Contains(neighborId))
                     neighbors[triangle.id].Add(neighborId);
             }
 
             // Add the neighbors of point c
-            foreach (int neighborId in pointTriangles[(triangle.c.x, triangle.c.y, triangle.c.z)]){
+            foreach (int neighborId in pointTriangles[(triangle.c.vector.x, triangle.c.vector.y, triangle.c.vector.z)]){
                 if (!neighbors[triangle.id].Contains(neighborId))
                     neighbors[triangle.id].Add(neighborId);
             }
@@ -117,17 +117,17 @@ public class Link : MonoBehaviour {
                 if (
                         Utils2D.Intersect(
                                 lines[i].start.transform.position,lines[i].end.transform.position,
-                                triangles[j].a,triangles[j].b
+                                triangles[j].a.vector,triangles[j].b.vector
                             )
                         ||
                         Utils2D.Intersect(
                             lines[i].start.transform.position,lines[i].end.transform.position,
-                            triangles[j].b,triangles[j].c
+                            triangles[j].b.vector,triangles[j].c.vector
                             )
                         ||
                         Utils2D.Intersect(
                             lines[i].start.transform.position,lines[i].end.transform.position,
-                            triangles[j].a,triangles[j].c
+                            triangles[j].a.vector,triangles[j].c.vector
                             )
                     ) {
                         directConnectedTriangles[lines[i].id].Add(triangles[j]);
@@ -181,7 +181,7 @@ public class Link : MonoBehaviour {
 
         // Now we can relate the triangles to their lines in the output
         // Define the epsilon or take it as an argument of the function or access it by any way
-        int epsilon = 1;
+        int epsilon = 0;
 
         // When epsilon == 0, that means we will add each triangle to the closest line
         // and we will add it to many lines if they are with the same closest distance
@@ -212,7 +212,7 @@ public class Link : MonoBehaviour {
                         lineTriangles[line] = new List<Triangle>();
                     triangle.lines.Add(line);
                     lineTriangles[line].Add(triangle);
-                    // break;
+                    break;
                 }
             }
         }

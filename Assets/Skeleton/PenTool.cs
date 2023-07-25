@@ -48,6 +48,7 @@ public class PenTool : MonoBehaviour
     float avgRotate;
     float sumRotate;
 
+
     private void Start(){
         penCanvas.OnPenCanvasLeftClickEvent += AddDot;
         lines     = new List <LineController>();
@@ -71,24 +72,7 @@ public class PenTool : MonoBehaviour
         prevVector = new Vector2(0,0);
         index = 0 ;
         soso = true;
-    }
-
-    public static unsafe void Mimomomo()
-    {
-        int x = 10;
-        int* p = &x;
-        int* x2 = &x;
-        print("Value of x   : " + x);
-        print("Value of p   : " + *p);
-        print("Value of x2  : " + *x2);
-        x = x + 2 ;
-        print("_________");
-        print("Value of x   : " + x);
-        print("Value of p   : " + *p);
-        print("Value of x2  : " + *x2);
-
-    
-    
+        
     }
 
     private void Update(){
@@ -100,8 +84,6 @@ public class PenTool : MonoBehaviour
         } 
         if(Input.GetKeyDown(KeyCode.M)){
             move = !move;           
-        }if(Input.GetKeyDown(KeyCode.Q)){
-            Mimomomo();         
         }
         if(move){
             if(k >= 1.0f){
@@ -113,6 +95,9 @@ public class PenTool : MonoBehaviour
             float distance = Vector3.Distance(sk1[0].start.transform.position, sk2[0].start.transform.position);
             
             if (!((distance >= 0.00) && (distance <= 0.01))){
+
+                Dictionary<PointMimo, List<LineController>> pointLines = new Dictionary<PointMimo, List<LineController>>();
+                
                 for(int i = 0 ; i< sk1.Count ; i++) {
                     center = new Vector3(
                         (sk1[i].start.transform.position.x + sk1[i].end.transform.position.x) / 2 ,
@@ -126,43 +111,51 @@ public class PenTool : MonoBehaviour
                     }else{
                         sk1[i].end.transform.position   = Vector3.Lerp(sk1[i].end.transform.position  , sk2[i].end.transform.position  , k);
                     } 
-                foreach(Triangle triangle in Drawable.output[sk1[i]]){
-                        if(triangle.lines.Count  == 1){
-                            triangle.Shift(center,Operation.Minus);
-                            triangle.TransformationSTR(
-                                sk1[i].scale,
-                                sk1[i].positionChange,
-                                sk1[i].rotationChange
-                            );
-                            triangle.Shift(center,Operation.Add);
-                        }
+
+                    HashSet<PointMimo> uniquePointMimo = new HashSet<PointMimo>();
+                    foreach(Triangle triangle in Drawable.output[sk1[i]]){
+                        if(!uniquePointMimo.Contains(triangle.a))
+                            uniquePointMimo.Add(triangle.a);
+                        if(!uniquePointMimo.Contains(triangle.b))
+                            uniquePointMimo.Add(triangle.b);
+                        if(!uniquePointMimo.Contains(triangle.c))
+                            uniquePointMimo.Add(triangle.c);
                     }
-                }                  
-                foreach(Triangle triangle in Drawable.link.triangles){
-                    if(triangle.lines.Count  > 1){
-                        avgScale = new Vector3(0,0,0) ;
-                        sumScale = new Vector3(0,0,0) ;
-                        avgTranslate = new Vector3(0,0,0) ;
-                        sumTranslate = new Vector3(0,0,0) ;
-                        avgRotate = 0 ;
-                        sumRotate = 0 ;
-                        for(int l = 0 ; l < triangle.lines.Count ; l++) {
-                            sumScale     += triangle.lines[l].scale;
-                            sumTranslate += triangle.lines[l].positionChange;
-                            sumRotate    += triangle.lines[l].rotationChange;
-                        }
 
-                        avgScale     = sumScale     / triangle.lines.Count;
-                        avgTranslate = sumTranslate / triangle.lines.Count;
-                        avgRotate    = sumRotate    / triangle.lines.Count;
-
-                            triangle.Shift(center,Operation.Minus);
-                            triangle.TransformationSTR( avgScale , avgTranslate  , avgRotate );
-                            triangle.Shift(center,Operation.Add);
-                    }                       
-                }
+                    foreach(PointMimo pointMimo in uniquePointMimo){
+                        if(!pointLines.ContainsKey(pointMimo))
+                            pointLines[pointMimo] = new List<LineController>();
+                        pointLines[pointMimo].Add(sk1[i]);
+                    }
                 
-            }  
+                }  
+
+                foreach(KeyValuePair<PointMimo, List<LineController>> kvp in pointLines){
+                    PointMimo result = new PointMimo(new Vector3(0, 0, 0));
+
+                    foreach(LineController line in kvp.Value){
+                        Vector3 localCenter = new Vector3(
+                            (line.start.transform.position.x + line.end.transform.position.x) / 2 ,
+                            (line.start.transform.position.y + line.end.transform.position.y) / 2 ,
+                            (line.start.transform.position.z + line.end.transform.position.z) / 2  
+                        );
+                        PointMimo cur = new PointMimo(kvp.Key.vector);
+
+                        cur.vector = cur.vector - localCenter ; 
+
+                        cur.vector = Vector3.Scale(cur.vector , line.scale);
+                        cur.vector = cur.vector + line.positionChange ;
+                        cur.vector = Quaternion.Euler(0f, 0f,  line.rotationChange) * cur.vector ;
+                        
+                        cur.vector = cur.vector + localCenter ; 
+
+                        result.vector += cur.vector;
+                    }
+                    result.vector /= kvp.Value.Count;
+
+                    kvp.Key.vector = result.vector;
+                }
+            }
         }
 
         if(Input.GetKeyDown(KeyCode.K)){
@@ -294,5 +287,5 @@ public class PenTool : MonoBehaviour
         worldMousePosition.z = 0;
         return worldMousePosition;
     }
-
+    
 }

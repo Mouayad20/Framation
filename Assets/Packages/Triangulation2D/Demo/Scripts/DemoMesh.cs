@@ -45,19 +45,19 @@ namespace mattatz.Triangulation2DSystem.Example {
 						else
 							GL.Color(Drawable.link.triangles[t].color);
 
-						GL.Vertex(Drawable.link.triangles[t].a);
-						GL.Vertex(Drawable.link.triangles[t].b);
-						GL.Vertex(Drawable.link.triangles[t].c);
+						GL.Vertex(Drawable.link.triangles[t].a.vector);
+						GL.Vertex(Drawable.link.triangles[t].b.vector);
+						GL.Vertex(Drawable.link.triangles[t].c.vector);
 					GL.End();
 
 					GL.Begin(GL.LINES);
 					GL.Color(Color.yellow);
-						GL.Vertex(Drawable.link.triangles[t].a);
-						GL.Vertex(Drawable.link.triangles[t].b);
-						GL.Vertex(Drawable.link.triangles[t].b);
-						GL.Vertex(Drawable.link.triangles[t].c);
-						GL.Vertex(Drawable.link.triangles[t].c);
-						GL.Vertex(Drawable.link.triangles[t].a);
+						GL.Vertex(Drawable.link.triangles[t].a.vector);
+						GL.Vertex(Drawable.link.triangles[t].b.vector);
+						GL.Vertex(Drawable.link.triangles[t].b.vector);
+						GL.Vertex(Drawable.link.triangles[t].c.vector);
+						GL.Vertex(Drawable.link.triangles[t].c.vector);
+						GL.Vertex(Drawable.link.triangles[t].a.vector);
 					GL.End();
 					// 	}
 					// }

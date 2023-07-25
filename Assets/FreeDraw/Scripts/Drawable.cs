@@ -393,24 +393,20 @@ namespace FreeDraw
                     int[] trianglesPoints = globalMesh.triangles;
                     int id = 0 ;
                     triangles = new List<Triangle>();
-                    List<
-                    for (int i = 0; i < trianglesPoints.Length; i++){
-                        print("t  : " + trianglesPoints[i]);
+
+                    PointMimo[] pointsMimo = new PointMimo[globalMesh.vertices.Length];
+
+                    for (int i = 0; i < globalMesh.vertices.Length; i++){
+                        pointsMimo[i] = new PointMimo(globalMesh.vertices[i]);
                     }
+
                     for (int i = 0; i < trianglesPoints.Length; i += 3){
                         Triangle triangle = new Triangle();
                         triangle.id = id ;
-                        triangle.a = globalMesh.vertices[trianglesPoints[i + 0]];
-                        triangle.b = globalMesh.vertices[trianglesPoints[i + 1]];
-                        triangle.c = globalMesh.vertices[trianglesPoints[i + 2]];
+                        triangle.a = pointsMimo[trianglesPoints[i + 0]];
+                        triangle.b = pointsMimo[trianglesPoints[i + 1]];
+                        triangle.c = pointsMimo[trianglesPoints[i + 2]];
                         triangle.triangleTransform = tito;
-                        // print("_____________________");
-                        // print("t0 : " + trianglesPoints[i]);
-                        // print("a  : " + triangle.a);
-                        // print("t1 : " + trianglesPoints[i+1]);
-                        // print("b  : " + triangle.b);
-                        // print("t2 : " + trianglesPoints[i+2]);
-                        // print("c  : " + triangle.c);
                         triangles.Add(triangle);
                         id = id + 1 ;
 				    }
@@ -432,6 +428,23 @@ namespace FreeDraw
             {
                 Debug.LogError("drawable_sprite is not assigned!");
             }
+        }
+    }
+
+    public class PointMimo {
+        public Vector3 vector;
+        public PointMimo(Vector3 vector){this.vector = vector;}
+        public override int GetHashCode() {
+            return vector.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+                return false;
+
+            PointMimo other = (PointMimo)obj;
+            return vector == other.vector ;
         }
     }
 }
