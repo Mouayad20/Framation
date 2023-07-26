@@ -1403,6 +1403,7 @@ MonoBehaviour:
   Reset_Canvas_On_Play: 1
   Reset_Colour: {r: 1, g: 1, b: 1, a: 1}
   globalMesh: {fileID: 0}
+  materialToModify: {fileID: 2100000, guid: 7e54230c159c7924abe13a23c125c1e2, type: 2}
 --- !u!212 &975978399
 SpriteRenderer:
   m_ObjectHideFlags: 0

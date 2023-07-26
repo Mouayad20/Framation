@@ -51,9 +51,9 @@ public class PenTool : MonoBehaviour
 
     private void Start(){
         penCanvas.OnPenCanvasLeftClickEvent += AddDot;
-        lines     = new List <LineController>();
-        linesTemp = new List <LineController>();
-        skeletons = new List<List<LineController>>();
+        lines       = new List <LineController>();
+        linesTemp   = new List <LineController>();
+        skeletons   = new List <List<LineController>>();
         counter     = 0 ;
         pupId       = 0 ;
         lineCounter = 0 ;
@@ -71,8 +71,7 @@ public class PenTool : MonoBehaviour
         prevCenter = new Vector3(0,0,0);
         prevVector = new Vector2(0,0);
         index = 0 ;
-        soso = true;
-        
+        soso = true;   
     }
 
     private void Update(){

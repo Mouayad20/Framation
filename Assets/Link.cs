@@ -181,7 +181,7 @@ public class Link : MonoBehaviour {
 
         // Now we can relate the triangles to their lines in the output
         // Define the epsilon or take it as an argument of the function or access it by any way
-        int epsilon = 0;
+        int epsilon = 1;
 
         // When epsilon == 0, that means we will add each triangle to the closest line
         // and we will add it to many lines if they are with the same closest distance
@@ -212,7 +212,7 @@ public class Link : MonoBehaviour {
                         lineTriangles[line] = new List<Triangle>();
                     triangle.lines.Add(line);
                     lineTriangles[line].Add(triangle);
-                    break;
+                    // break;
                 }
             }
         }

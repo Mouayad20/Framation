@@ -55,9 +55,12 @@ namespace FreeDraw
         bool mouse_was_previously_held_down = false;
         bool no_drawing_on_current_drag = false;
         public Mesh globalMesh;
+
         public static List<Triangle> triangles ;
         public static Link link ;
         public static Dictionary<LineController, List<Triangle>> output ;
+
+        public Material materialToModify ;
 
 
 
@@ -147,6 +150,21 @@ namespace FreeDraw
 
             if(Input.GetKeyDown(KeyCode.G)){
                 isDrawing = !isDrawing;
+                Texture2D texture = new Texture2D((int)drawable_sprite.rect.width, (int)drawable_sprite.rect.height);
+                texture.SetPixels(drawable_sprite.texture.GetPixels(
+                    (int)drawable_sprite.textureRect.x,
+                    (int)drawable_sprite.textureRect.y,
+                    (int)drawable_sprite.textureRect.width,
+                    (int)drawable_sprite.textureRect.height
+                    )
+                );
+                
+                // Apply the changes to the Texture2D
+                texture.Apply();
+
+                materialToModify.SetTexture("_MainTex", texture);
+                
+                
                 ConvertSpriteToImage();
             }
 
@@ -395,9 +413,11 @@ namespace FreeDraw
                     triangles = new List<Triangle>();
 
                     PointMimo[] pointsMimo = new PointMimo[globalMesh.vertices.Length];
+                    List<Vector2> uv = new List<Vector2>();
 
                     for (int i = 0; i < globalMesh.vertices.Length; i++){
                         pointsMimo[i] = new PointMimo(globalMesh.vertices[i]);
+                        uv.Add(new Vector2(pointsMimo[i].vector.x/width,pointsMimo[i].vector.y/height));
                     }
 
                     for (int i = 0; i < trianglesPoints.Length; i += 3){
@@ -410,6 +430,7 @@ namespace FreeDraw
                         triangles.Add(triangle);
                         id = id + 1 ;
 				    }
+                    globalMesh.uv = uv.ToArray();
 
                     points.Clear(); 
 
