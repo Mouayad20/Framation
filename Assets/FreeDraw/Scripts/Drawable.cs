@@ -178,6 +178,12 @@ namespace FreeDraw
                 print("TTTTTTTTTTTTTTTTTTTTTTTTTTTTT");
                 DrawTriangulation = !DrawTriangulation;
             }
+            // if(Input.GetKeyDown(KeyCode.H)){
+            //     print("HHHHHHHHHHHHHHHHHHHHHH");
+            //     for (int i = 0; i < globalMesh.vertices.Length; i++){
+            //         globalMesh.vertices[i] = new Vector3(globalMesh.vertices[i].x + 1 ,globalMesh.vertices[i].y + 1 , 0 );
+            //     }
+            // }
             
             if(isDrawing){
                    
@@ -404,7 +410,7 @@ namespace FreeDraw
                     if(vertices.Length < 3) return; // error
                     var triangulation = new Triangulation2D(polygon, 30);
                     var go = Instantiate(prefab);
-                    go.transform.SetParent(transform, false);
+                    // go.transform.SetParent(transform, false);
                     go.GetComponent<DemoMesh>().SetTriangulation(triangulation);
                     Transform tito = go.GetComponent<DemoMesh>().transform;
                     globalMesh = go.GetComponent<DemoMesh>().mesh;
@@ -431,6 +437,9 @@ namespace FreeDraw
                         id = id + 1 ;
 				    }
                     globalMesh.uv = uv.ToArray();
+                    globalMesh.RecalculateNormals();
+                    globalMesh.RecalculateBounds();
+                    globalMesh.RecalculateTangents();
 
                     points.Clear(); 
 
