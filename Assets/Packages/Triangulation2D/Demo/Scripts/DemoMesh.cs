@@ -32,7 +32,15 @@ namespace mattatz.Triangulation2DSystem.Example {
 		void OnRenderObject () {
 			if(triangles == null) return;
 			
-			// if (Drawable.DrawTriangulation){
+			if (Drawable.DrawTriangulation){
+				
+				Drawable.globalMesh.vertices = PenTool.verticesMimo;
+				Drawable.globalMesh.uv = Drawable.uv.ToArray();
+				Drawable.globalMesh.RecalculateNormals();
+				Drawable.globalMesh.RecalculateBounds();
+				Drawable.globalMesh.RecalculateTangents();
+
+
 			// 	GL.PushMatrix();
 			// 	lineMat.SetColor("_Color", Color.red);
 			// 	lineMat.SetPass(0);
@@ -72,7 +80,7 @@ namespace mattatz.Triangulation2DSystem.Example {
 			// 		// GL.End();
 			// 	}
 			// 	GL.PopMatrix();	
-			// }	
+			}	
 		}
 	}
 }

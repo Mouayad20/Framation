@@ -54,13 +54,16 @@ namespace FreeDraw
         Color32[] cur_colors;
         bool mouse_was_previously_held_down = false;
         bool no_drawing_on_current_drag = false;
-        public Mesh globalMesh;
+        public static Mesh globalMesh;
 
         public static List<Triangle> triangles ;
         public static Link link ;
         public static Dictionary<LineController, List<Triangle>> output ;
 
         public Material materialToModify ;
+
+        bool moveMesh = false;
+        public static List<Vector2> uv ;
 
 
 
@@ -147,15 +150,28 @@ namespace FreeDraw
         // Detects when user is left clicking, which then call the appropriate function
         void Update()
         {
+            // if(moveMesh){
+                // Vector3[] newVertices = new Vector3[globalMesh.vertices.Length];
+                // for (int i = 0; i < globalMesh.vertices.Length; i++){
+                    
+                //     newVertices[i] = new Vector3(globalMesh.vertices[i].x + 1 ,globalMesh.vertices[i].y + 1 , 0 );
+                // }
+                // globalMesh.vertices = newVertices;
+            // }
+
+            if(Input.GetKeyDown(KeyCode.C)){
+                moveMesh = false;
+            }
 
             if(Input.GetKeyDown(KeyCode.G)){
                 isDrawing = !isDrawing;
                 Texture2D texture = new Texture2D((int)drawable_sprite.rect.width, (int)drawable_sprite.rect.height);
-                texture.SetPixels(drawable_sprite.texture.GetPixels(
-                    (int)drawable_sprite.textureRect.x,
-                    (int)drawable_sprite.textureRect.y,
-                    (int)drawable_sprite.textureRect.width,
-                    (int)drawable_sprite.textureRect.height
+                texture.SetPixels(
+                    drawable_sprite.texture.GetPixels(
+                        (int)drawable_sprite.textureRect.x,
+                        (int)drawable_sprite.textureRect.y,
+                        (int)drawable_sprite.textureRect.width,
+                        (int)drawable_sprite.textureRect.height
                     )
                 );
                 
@@ -178,12 +194,6 @@ namespace FreeDraw
                 print("TTTTTTTTTTTTTTTTTTTTTTTTTTTTT");
                 DrawTriangulation = !DrawTriangulation;
             }
-            // if(Input.GetKeyDown(KeyCode.H)){
-            //     print("HHHHHHHHHHHHHHHHHHHHHH");
-            //     for (int i = 0; i < globalMesh.vertices.Length; i++){
-            //         globalMesh.vertices[i] = new Vector3(globalMesh.vertices[i].x + 1 ,globalMesh.vertices[i].y + 1 , 0 );
-            //     }
-            // }
             
             if(isDrawing){
                    
@@ -222,6 +232,118 @@ namespace FreeDraw
                     no_drawing_on_current_drag = false;
                 }
                 mouse_was_previously_held_down = mouse_held_down;
+            }
+        }
+
+        public void ConvertSpriteToImage()
+        {
+            if (drawable_sprite != null)
+            {
+                moveMesh = true;
+                // Create a new Texture2D with the Sprite's dimensions
+                Texture2D texture = new Texture2D((int)drawable_sprite.rect.width, (int)drawable_sprite.rect.height);
+                
+                // Get the pixels from the drawable_sprite and set them to the Texture2D
+                texture.SetPixels(drawable_sprite.texture.GetPixels(
+                    (int)drawable_sprite.textureRect.x,
+                    (int)drawable_sprite.textureRect.y,
+                    (int)drawable_sprite.textureRect.width,
+                    (int)drawable_sprite.textureRect.height
+                    )
+                );
+                
+                // Apply the changes to the Texture2D
+                texture.Apply();
+
+                // Convert the Texture2D to bytes (PNG format)
+                byte[] bytes = texture.EncodeToPNG();
+
+                //    BEGIN find contours from texture 
+
+                    float width  = 10 ;
+                    float height = 7.5f;
+                    float center_x = width   / 2 ; 
+                    float center_y = height  / 2 ;
+
+                    Mat image = Unity.TextureToMat (texture);
+
+                    //Gray scale image
+                    Mat grayMat = new Mat();
+
+                    Cv2.CvtColor (image, grayMat, ColorConversionCodes.BGR2GRAY); 
+
+                    Mat thresh = new Mat ();
+                    Cv2.Threshold (grayMat, thresh, 127, 255, ThresholdTypes.BinaryInv);
+
+                    Cv2.Circle(image, new Point(0,0), 5, new Scalar(0,0,255),-1);
+
+                    // Extract Contours
+                    Point[][] contours;
+                    HierarchyIndex[] hierarchy;
+                    Cv2.FindContours (thresh, out contours, out hierarchy, RetrievalModes.Tree, ContourApproximationModes.ApproxNone, null);
+
+                    for (int k = 0 ; k < contours[0].Length  ; k++){
+                        points.Add(
+                            new Vector2(
+                                ((  contours[0][k].X - center_x ) / 100 ) + 0.05f ,
+                                (( -contours[0][k].Y - center_y ) / 100 ) + 0.05f 
+                                )
+                            );
+                    }
+
+                    points = Utils2D.Constrain(points, 0.25f );
+                    var polygon = Polygon2D.Contour(points.ToArray());
+                    var vertices = polygon.Vertices;
+                    if(vertices.Length < 3) return; // error
+                    var triangulation = new Triangulation2D(polygon, 30);
+                    var go = Instantiate(prefab);
+                    // go.transform.SetParent(transform, false);
+                    go.GetComponent<DemoMesh>().SetTriangulation(triangulation);
+                    Transform tito = go.GetComponent<DemoMesh>().transform;
+                    globalMesh = go.GetComponent<DemoMesh>().mesh;
+                    int[] trianglesPoints = globalMesh.triangles;
+                    int id = 0 ;
+                    triangles = new List<Triangle>();
+
+                    PointMimo[] pointsMimo = new PointMimo[globalMesh.vertices.Length];
+                    uv = new List<Vector2>();
+                    PenTool.newVertices = new List<PointMimo>();
+                    PenTool.verticesMimo = new Vector3[globalMesh.vertices.Length];
+
+                    for (int i = 0; i < globalMesh.vertices.Length; i++){
+                        pointsMimo[i] = new PointMimo( globalMesh.vertices[i] , i );
+                        PenTool.newVertices.Add(pointsMimo[i]);
+                        uv.Add(new Vector2(pointsMimo[i].vector.x/width,pointsMimo[i].vector.y/height));
+                    }
+
+                    for (int i = 0; i < trianglesPoints.Length; i += 3){
+                        Triangle triangle = new Triangle();
+                        triangle.id = id ;
+                        triangle.a = pointsMimo[trianglesPoints[i + 0]];
+                        triangle.b = pointsMimo[trianglesPoints[i + 1]];
+                        triangle.c = pointsMimo[trianglesPoints[i + 2]];
+                        triangle.triangleTransform = tito;
+                        triangles.Add(triangle);
+                        id = id + 1 ;
+				    }
+                    
+
+                    points.Clear(); 
+
+                //    END  find contours from texture 
+
+
+                // Optionally, you can save the bytes to a file
+                // System.IO.File.WriteAllBytes("C:/Users/HP/Downloads/Compressed/trianglation/Assets/OpenCV+Unity/Demo/Identifiy_Contours_by_Shape/someshapes.jpg", bytes);
+
+                // Destroy the temporary Texture2D object
+                Destroy(texture);
+
+                // Now you can use the bytes as an image or apply them to a texture
+            }
+            else
+            {
+                Debug.LogError("drawable_sprite is not assigned!");
             }
         }
 
@@ -349,121 +471,13 @@ namespace FreeDraw
                 ResetCanvas();
         }
 
-        public void ConvertSpriteToImage()
-        {
-            if (drawable_sprite != null)
-            {
-                // Create a new Texture2D with the Sprite's dimensions
-                Texture2D texture = new Texture2D((int)drawable_sprite.rect.width, (int)drawable_sprite.rect.height);
-                
-                // Get the pixels from the drawable_sprite and set them to the Texture2D
-                texture.SetPixels(drawable_sprite.texture.GetPixels(
-                    (int)drawable_sprite.textureRect.x,
-                    (int)drawable_sprite.textureRect.y,
-                    (int)drawable_sprite.textureRect.width,
-                    (int)drawable_sprite.textureRect.height
-                    )
-                );
-                
-                // Apply the changes to the Texture2D
-                texture.Apply();
-
-                // Convert the Texture2D to bytes (PNG format)
-                byte[] bytes = texture.EncodeToPNG();
-
-                //    BEGIN find contours from texture 
-
-                    float width  = 10 ;
-                    float height = 7.5f;
-                    float center_x = width   / 2 ; 
-                    float center_y = height  / 2 ;
-
-                    Mat image = Unity.TextureToMat (texture);
-
-                    //Gray scale image
-                    Mat grayMat = new Mat();
-
-                    Cv2.CvtColor (image, grayMat, ColorConversionCodes.BGR2GRAY); 
-
-                    Mat thresh = new Mat ();
-                    Cv2.Threshold (grayMat, thresh, 127, 255, ThresholdTypes.BinaryInv);
-
-                    Cv2.Circle(image, new Point(0,0), 5, new Scalar(0,0,255),-1);
-
-                    // Extract Contours
-                    Point[][] contours;
-                    HierarchyIndex[] hierarchy;
-                    Cv2.FindContours (thresh, out contours, out hierarchy, RetrievalModes.Tree, ContourApproximationModes.ApproxNone, null);
-
-                    for (int k = 0 ; k < contours[0].Length  ; k++){
-                        points.Add(
-                            new Vector2(
-                                ((  contours[0][k].X - center_x ) / 100 ) + 0.05f ,
-                                (( -contours[0][k].Y - center_y ) / 100 ) + 0.05f 
-                                )
-                            );
-                    }
-
-                    points = Utils2D.Constrain(points, 0.25f );
-                    var polygon = Polygon2D.Contour(points.ToArray());
-                    var vertices = polygon.Vertices;
-                    if(vertices.Length < 3) return; // error
-                    var triangulation = new Triangulation2D(polygon, 30);
-                    var go = Instantiate(prefab);
-                    // go.transform.SetParent(transform, false);
-                    go.GetComponent<DemoMesh>().SetTriangulation(triangulation);
-                    Transform tito = go.GetComponent<DemoMesh>().transform;
-                    globalMesh = go.GetComponent<DemoMesh>().mesh;
-                    int[] trianglesPoints = globalMesh.triangles;
-                    int id = 0 ;
-                    triangles = new List<Triangle>();
-
-                    PointMimo[] pointsMimo = new PointMimo[globalMesh.vertices.Length];
-                    List<Vector2> uv = new List<Vector2>();
-
-                    for (int i = 0; i < globalMesh.vertices.Length; i++){
-                        pointsMimo[i] = new PointMimo(globalMesh.vertices[i]);
-                        uv.Add(new Vector2(pointsMimo[i].vector.x/width,pointsMimo[i].vector.y/height));
-                    }
-
-                    for (int i = 0; i < trianglesPoints.Length; i += 3){
-                        Triangle triangle = new Triangle();
-                        triangle.id = id ;
-                        triangle.a = pointsMimo[trianglesPoints[i + 0]];
-                        triangle.b = pointsMimo[trianglesPoints[i + 1]];
-                        triangle.c = pointsMimo[trianglesPoints[i + 2]];
-                        triangle.triangleTransform = tito;
-                        triangles.Add(triangle);
-                        id = id + 1 ;
-				    }
-                    globalMesh.uv = uv.ToArray();
-                    globalMesh.RecalculateNormals();
-                    globalMesh.RecalculateBounds();
-                    globalMesh.RecalculateTangents();
-
-                    points.Clear(); 
-
-                //    END  find contours from texture 
-
-
-                // Optionally, you can save the bytes to a file
-                // System.IO.File.WriteAllBytes("C:/Users/HP/Downloads/Compressed/trianglation/Assets/OpenCV+Unity/Demo/Identifiy_Contours_by_Shape/someshapes.jpg", bytes);
-
-                // Destroy the temporary Texture2D object
-                Destroy(texture);
-
-                // Now you can use the bytes as an image or apply them to a texture
-            }
-            else
-            {
-                Debug.LogError("drawable_sprite is not assigned!");
-            }
-        }
+        
     }
 
     public class PointMimo {
         public Vector3 vector;
-        public PointMimo(Vector3 vector){this.vector = vector;}
+        public int id ;
+        public PointMimo(Vector3 vector, int id ){this.vector = vector;this.id=id;}
         public override int GetHashCode() {
             return vector.GetHashCode();
         }

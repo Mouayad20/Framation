@@ -47,6 +47,8 @@ public class PenTool : MonoBehaviour
     Vector3 sumScale;
     float avgRotate;
     float sumRotate;
+    public static List<PointMimo> newVertices;
+    public static Vector3[] verticesMimo;
 
 
     private void Start(){
@@ -81,6 +83,14 @@ public class PenTool : MonoBehaviour
                 selectDot = false;
             }
         } 
+        if(Input.GetKeyDown(KeyCode.O)){
+            Vector3[] newVertices = new Vector3[Drawable.globalMesh.vertices.Length];
+            for (int i = 0; i < Drawable.globalMesh.vertices.Length; i++){
+                
+                newVertices[i] = new Vector3(Drawable.globalMesh.vertices[i].x + 1 ,Drawable.globalMesh.vertices[i].y + 1 , 0 );
+            }
+            Drawable.globalMesh.vertices = newVertices;
+        }
         if(Input.GetKeyDown(KeyCode.M)){
             move = !move;           
         }
@@ -128,9 +138,8 @@ public class PenTool : MonoBehaviour
                     }
                 
                 }  
-
                 foreach(KeyValuePair<PointMimo, List<LineController>> kvp in pointLines){
-                    PointMimo result = new PointMimo(new Vector3(0, 0, 0));
+                    PointMimo result = new PointMimo(new Vector3(0, 0, 0),99999999);
 
                     foreach(LineController line in kvp.Value){
                         Vector3 localCenter = new Vector3(
@@ -138,7 +147,7 @@ public class PenTool : MonoBehaviour
                             (line.start.transform.position.y + line.end.transform.position.y) / 2 ,
                             (line.start.transform.position.z + line.end.transform.position.z) / 2  
                         );
-                        PointMimo cur = new PointMimo(kvp.Key.vector);
+                        PointMimo cur = new PointMimo(kvp.Key.vector,kvp.Key.id);
 
                         cur.vector = cur.vector - localCenter ; 
 
@@ -153,7 +162,13 @@ public class PenTool : MonoBehaviour
                     result.vector /= kvp.Value.Count;
 
                     kvp.Key.vector = result.vector;
+                    for (int i = 0; i < newVertices.Count; i++){
+                        if (newVertices[i].id == kvp.Key.id) {
+                            verticesMimo[kvp.Key.id] = kvp.Key.vector;
+                        }
+                    }
                 }
+
             }
         }
 
