@@ -26,4 +26,10 @@ public class DotController : MonoBehaviour , IDragHandler, IPointerClickHandler 
             OnLeftClickEvent?.Invoke(this);
         }
     }
+
+    public DotController Clone(GameObject dotPrefab ,Transform dotParent ){
+        DotController dot =  Instantiate(dotPrefab , new Vector3(this.transform.position.x,this.transform.position.y,0), Quaternion.identity, dotParent).GetComponent<DotController>();
+        dot.id = this.id;
+        return dot;
+    }
 }

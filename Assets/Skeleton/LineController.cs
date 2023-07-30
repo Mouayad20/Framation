@@ -1,13 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
+[Serializable]
 public class LineController : MonoBehaviour
 {
     public int id;
     public LineRenderer lr;
-    public  DotController start;
-    public  DotController end;
+    public DotController start;
+    public DotController end;
     public float prevX;
     public float prevY;
     public float angle;
@@ -98,4 +102,38 @@ public class LineController : MonoBehaviour
         previousDistanceX  = currentDistanceX;
         previousDistanceY  = currentDistanceY;
     }
+
+    public LineController Clone(GameObject dotPrefab,Transform dotParent){
+        LineController line = new LineController();
+        line.id = this.id ;
+        line.lr = this.lr ;
+        // line.start = Instantiate(dotPrefab , this.start.transform.position, Quaternion.identity, dotParent).GetComponent<DotController>();
+        // line.start.id = this.start.id;
+        // line.start.onDragEvent = this.start.onDragEvent;
+        // line.start.OnRightClickEvent = this.start.OnRightClickEvent;
+        // line.start.OnLeftClickEvent = this.start.OnLeftClickEvent;
+        // line.end   = Instantiate(dotPrefab , this.end.transform.position, Quaternion.identity, dotParent).GetComponent<DotController>();
+        // line.end.id = this.end.id;
+        // line.end.onDragEvent = this.end.onDragEvent;
+        // line.end.OnRightClickEvent = this.end.OnRightClickEvent;
+        // line.end.OnLeftClickEvent = this.end.OnLeftClickEvent;
+        line.prevX = this.prevX ;
+        line.prevY = this.prevY ;
+        line.angle = this.angle ;
+        line.vector1 = this.vector1 ;
+        line.position = this.position ;
+        line.rotation = this.rotation ;
+        line.scale = this.scale ;
+        line.previousPosition = this.previousPosition ;
+        line.positionChange = this.positionChange ;
+        line.previousRotation = this.previousRotation ;
+        line.previousDistance = this.previousDistance ;
+        line.previousDistanceX = this.previousDistanceX;
+        line.previousDistanceY = this.previousDistanceY;
+        line.rotationChange = this.rotationChange ;
+        line.scallionChange = this.scallionChange ;
+        line.previousScallion = this.previousScallion ;
+        return line;
+    }
+
 }

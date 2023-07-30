@@ -1,8 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using FreeDraw;
 using OperationNamespace;
+using System;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 public class PenTool : MonoBehaviour
 {
@@ -20,6 +24,7 @@ public class PenTool : MonoBehaviour
     private List<LineController> lines;
     private List<LineController> linesTemp;
     public static List<List<LineController>> skeletons;
+    public static List<List<LineController>> skeletons2;
     private LineController currentLine;
     DotController dot ;
     DotController prevDot ;
@@ -56,6 +61,7 @@ public class PenTool : MonoBehaviour
         lines       = new List <LineController>();
         linesTemp   = new List <LineController>();
         skeletons   = new List <List<LineController>>();
+        skeletons2   = new List <List<LineController>>();
         counter     = 0 ;
         pupId       = 0 ;
         lineCounter = 0 ;
@@ -83,13 +89,22 @@ public class PenTool : MonoBehaviour
                 selectDot = false;
             }
         } 
+        if(Input.GetKeyDown(KeyCode.R)){
+            skeletons.Reverse();
+            List<LineController> sk1 = skeletons[0]; 
+            print("l1 pos : " +  sk1[0].start.transform.position );
+            List<LineController> sk2 = skeletons[1]; 
+            print("l2 pos : " +  sk2[0].start.transform.position );
+        }
         if(Input.GetKeyDown(KeyCode.O)){
-            Vector3[] newVertices = new Vector3[Drawable.globalMesh.vertices.Length];
-            for (int i = 0; i < Drawable.globalMesh.vertices.Length; i++){
-                
-                newVertices[i] = new Vector3(Drawable.globalMesh.vertices[i].x + 1 ,Drawable.globalMesh.vertices[i].y + 1 , 0 );
+            for (int i = 0 ; i < lines.Count ; i++ ){
+                if ( i == 0 ){
+                    lines[i].start.transform.position = lines[i].start.transform.position + new Vector3(1,1,0);
+                    lines[i].end.transform.position   = lines[i].end.transform.position + new Vector3(1,1,0);                    
+                }else{
+                    lines[i].end.transform.position   = lines[i].end.transform.position + new Vector3(1,1,0);
+                } 
             }
-            Drawable.globalMesh.vertices = newVertices;
         }
         if(Input.GetKeyDown(KeyCode.M)){
             move = !move;           
@@ -101,6 +116,7 @@ public class PenTool : MonoBehaviour
             k = k + 0.0001f ;
             List<LineController> sk1 = skeletons[0]; 
             List<LineController> sk2 = skeletons[1]; 
+            
             float distance = Vector3.Distance(sk1[0].start.transform.position, sk2[0].start.transform.position);
             
             if (!((distance >= 0.00) && (distance <= 0.01))){
@@ -108,6 +124,7 @@ public class PenTool : MonoBehaviour
                 Dictionary<PointMimo, List<LineController>> pointLines = new Dictionary<PointMimo, List<LineController>>();
                 
                 for(int i = 0 ; i< sk1.Count ; i++) {
+                    
                     center = new Vector3(
                         (sk1[i].start.transform.position.x + sk1[i].end.transform.position.x) / 2 ,
                         (sk1[i].start.transform.position.y + sk1[i].end.transform.position.y) / 2 ,
@@ -119,7 +136,8 @@ public class PenTool : MonoBehaviour
                         sk1[i].end.transform.position   = Vector3.Lerp(sk1[i].end.transform.position  , sk2[i].end.transform.position  , k);                    
                     }else{
                         sk1[i].end.transform.position   = Vector3.Lerp(sk1[i].end.transform.position  , sk2[i].end.transform.position  , k);
-                    } 
+                    }
+                    
 
                     HashSet<PointMimo> uniquePointMimo = new HashSet<PointMimo>();
                     foreach(Triangle triangle in Drawable.output[sk1[i]]){
@@ -147,6 +165,7 @@ public class PenTool : MonoBehaviour
                             (line.start.transform.position.y + line.end.transform.position.y) / 2 ,
                             (line.start.transform.position.z + line.end.transform.position.z) / 2  
                         );
+
                         PointMimo cur = new PointMimo(kvp.Key.vector,kvp.Key.id);
 
                         cur.vector = cur.vector - localCenter ; 
@@ -172,11 +191,55 @@ public class PenTool : MonoBehaviour
             }
         }
 
+        if(Input.GetKeyDown(KeyCode.F)){
+            print("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+            // finish = false;
+        }
         if(Input.GetKeyDown(KeyCode.K)){
             print("KKKKKKKKKKKKKKKKKKKKKKKKKKKKK");
-            linesTemp = new List<LineController>(lines);
-            skeletons.Add(linesTemp);
-            lines.Clear();
+            List<LineController> copyLines = new List<LineController>();
+            // if(finish) {
+                foreach(LineController line in lines){
+                    line.lr.enabled = false;
+                    line.start.GetComponent<Image>().enabled = false;
+                    line.end.GetComponent<Image>().enabled = false;
+                    LineController l = line.Clone(dotPrefab,dotParent); 
+                    l = Instantiate (lineprefab , Vector3.zero , Quaternion.identity , lineParent).GetComponent<LineController>(); ; 
+                    l.id = line.id  ;  
+                    l.start = Instantiate(dotPrefab , line.start.transform.position, Quaternion.identity, dotParent).GetComponent<DotController>();
+                    l.start.id = line.start.id;
+                    l.start.onDragEvent = line.start.onDragEvent;
+                    l.start.OnRightClickEvent = line.start.OnRightClickEvent;
+                    l.start.OnLeftClickEvent = line.start.OnLeftClickEvent;
+                    l.end   = Instantiate(dotPrefab , line.end.transform.position, Quaternion.identity, dotParent).GetComponent<DotController>();
+                    l.end.id = line.end.id;
+                    l.end.onDragEvent = line.end.onDragEvent;
+                    l.end.OnRightClickEvent = line.end.OnRightClickEvent;
+                    l.end.OnLeftClickEvent = line.end.OnLeftClickEvent;
+                    l.SetStart(l.start,l.start.id) ;
+                    l.SetEnd(l.end , l.end.id) ;
+
+                    copyLines.Add(l);
+                }
+            // }
+            // linesTemp = new List<LineController>(lines);
+            skeletons.Add(copyLines);
+            // lines.Clear();
+            print("skelton size " + skeletons.Count );
+
+            // DotController maxDot = Instantiate(dotPrefab , new Vector3(0,-99999999999,0), Quaternion.identity, dotParent).GetComponent<DotController>();
+            // for (int i = 0; i < lines.Count; i++){
+            //     if ( ( lines[i].start.transform.position.y > maxDot.transform.position.y) || ( lines[i].end.transform.position.y > maxDot.transform.position.y ) ) {
+            //         if(lines[i].start.transform.position.y>=lines[i].end.transform.position.y){
+            //             maxDot = lines[i].start;
+            //         }else{
+            //             maxDot = lines[i].end;
+            //         }
+            //     }
+            // }
+            // Image dotSpriteRenderer = maxDot.GetComponent<Image>();
+            // dotSpriteRenderer.color = Color.blue;
+
             counter = 0 ;
             pupId = 0 ;
             lineCounter = 0 ;
@@ -190,7 +253,7 @@ public class PenTool : MonoBehaviour
             if(counter == 0 ) {
                 DotController dot = Instantiate(dotPrefab , GetMousePosition(), Quaternion.identity, dotParent).GetComponent<DotController>();
                 dot.onDragEvent += MoveDot;
-               dot.OnLeftClickEvent += SelectDot;
+                dot.OnLeftClickEvent += SelectDot;
                 dot.OnRightClickEvent += UnSelectDot;
                 prevDot = dot;
                 counter = counter + 1;

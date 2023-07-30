@@ -12,6 +12,7 @@ namespace FreeDraw
     using mattatz.Triangulation2DSystem;
     using mattatz.Triangulation2DSystem.Example;
 
+
     [RequireComponent(typeof(SpriteRenderer))]
     [RequireComponent(typeof(Collider2D))]  // REQUIRES A COLLIDER2D to function
     // 1. Attach this to a read/write enabled sprite image
@@ -150,18 +151,6 @@ namespace FreeDraw
         // Detects when user is left clicking, which then call the appropriate function
         void Update()
         {
-            // if(moveMesh){
-                // Vector3[] newVertices = new Vector3[globalMesh.vertices.Length];
-                // for (int i = 0; i < globalMesh.vertices.Length; i++){
-                    
-                //     newVertices[i] = new Vector3(globalMesh.vertices[i].x + 1 ,globalMesh.vertices[i].y + 1 , 0 );
-                // }
-                // globalMesh.vertices = newVertices;
-            // }
-
-            if(Input.GetKeyDown(KeyCode.C)){
-                moveMesh = false;
-            }
 
             if(Input.GetKeyDown(KeyCode.G)){
                 isDrawing = !isDrawing;
@@ -193,6 +182,7 @@ namespace FreeDraw
             if(Input.GetKeyDown(KeyCode.T)){
                 print("TTTTTTTTTTTTTTTTTTTTTTTTTTTTT");
                 DrawTriangulation = !DrawTriangulation;
+                ResetCanvas();
             }
             
             if(isDrawing){
@@ -326,8 +316,14 @@ namespace FreeDraw
                         triangles.Add(triangle);
                         id = id + 1 ;
 				    }
-                    
 
+                    globalMesh.vertices = PenTool.verticesMimo;
+                    globalMesh.uv = uv.ToArray();
+                    globalMesh.RecalculateNormals();
+                    globalMesh.RecalculateBounds();
+                    globalMesh.RecalculateTangents();
+                    
+                    // ResetCanvas();
                     points.Clear(); 
 
                 //    END  find contours from texture 
