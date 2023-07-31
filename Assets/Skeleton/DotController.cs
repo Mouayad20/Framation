@@ -9,12 +9,14 @@ public class DotController : MonoBehaviour , IDragHandler, IPointerClickHandler 
 
     public int id;
     public Action<DotController> onDragEvent;
+    public Action<DotController> onDragMoveEvent;
     public Action<DotController> OnRightClickEvent;
     public Action<DotController> OnLeftClickEvent;
 
     public void OnDrag(PointerEventData eventData){
         if (eventData.pointerId == -1){
             onDragEvent?.Invoke(this);
+            onDragMoveEvent?.Invoke(this);
         }
     }
 
@@ -27,9 +29,4 @@ public class DotController : MonoBehaviour , IDragHandler, IPointerClickHandler 
         }
     }
 
-    public DotController Clone(GameObject dotPrefab ,Transform dotParent ){
-        DotController dot =  Instantiate(dotPrefab , new Vector3(this.transform.position.x,this.transform.position.y,0), Quaternion.identity, dotParent).GetComponent<DotController>();
-        dot.id = this.id;
-        return dot;
-    }
 }

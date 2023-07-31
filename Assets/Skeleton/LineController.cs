@@ -103,20 +103,9 @@ public class LineController : MonoBehaviour
         previousDistanceY  = currentDistanceY;
     }
 
-    public LineController Clone(GameObject dotPrefab,Transform dotParent){
+    public LineController Clone(){
         LineController line = new LineController();
         line.id = this.id ;
-        line.lr = this.lr ;
-        // line.start = Instantiate(dotPrefab , this.start.transform.position, Quaternion.identity, dotParent).GetComponent<DotController>();
-        // line.start.id = this.start.id;
-        // line.start.onDragEvent = this.start.onDragEvent;
-        // line.start.OnRightClickEvent = this.start.OnRightClickEvent;
-        // line.start.OnLeftClickEvent = this.start.OnLeftClickEvent;
-        // line.end   = Instantiate(dotPrefab , this.end.transform.position, Quaternion.identity, dotParent).GetComponent<DotController>();
-        // line.end.id = this.end.id;
-        // line.end.onDragEvent = this.end.onDragEvent;
-        // line.end.OnRightClickEvent = this.end.OnRightClickEvent;
-        // line.end.OnLeftClickEvent = this.end.OnLeftClickEvent;
         line.prevX = this.prevX ;
         line.prevY = this.prevY ;
         line.angle = this.angle ;

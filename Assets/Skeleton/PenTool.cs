@@ -23,6 +23,7 @@ public class PenTool : MonoBehaviour
 
     private List<LineController> lines;
     private List<LineController> linesTemp;
+    List<LineController> copyLines;
     public static List<List<LineController>> skeletons;
     public static List<List<LineController>> skeletons2;
     private LineController currentLine;
@@ -45,6 +46,7 @@ public class PenTool : MonoBehaviour
     float k = 0.0f ; 
     bool move ;
     bool soso ;
+    bool moveSkeleton2 ;
 
     Vector3 avgTranslate;
     Vector3 avgScale;
@@ -54,10 +56,14 @@ public class PenTool : MonoBehaviour
     float sumRotate;
     public static List<PointMimo> newVertices;
     public static Vector3[] verticesMimo;
-
+    public DotController tempDot ;
+    public DotController maxDot ;
+    public Color color;
 
     private void Start(){
         penCanvas.OnPenCanvasLeftClickEvent += AddDot;
+        tempDot = new DotController();
+        maxDot = new DotController();
         lines       = new List <LineController>();
         linesTemp   = new List <LineController>();
         skeletons   = new List <List<LineController>>();
@@ -67,8 +73,6 @@ public class PenTool : MonoBehaviour
         lineCounter = 0 ;
         dX = 0 ; 
         dY = 0 ; 
-        prevX = 0 ; 
-        prevY = 0 ; 
         avgTranslate = new Vector3(0,0,0) ;
         avgScale = new Vector3(0,0,0) ;
         sumScale = new Vector3(0,0,0) ;
@@ -76,6 +80,7 @@ public class PenTool : MonoBehaviour
         sumRotate = 0 ;
         avgRotate = 0 ;
         move = false;
+        moveSkeleton2 = false;
         prevCenter = new Vector3(0,0,0);
         prevVector = new Vector2(0,0);
         index = 0 ;
@@ -89,31 +94,12 @@ public class PenTool : MonoBehaviour
                 selectDot = false;
             }
         } 
-        if(Input.GetKeyDown(KeyCode.R)){
-            skeletons.Reverse();
-            List<LineController> sk1 = skeletons[0]; 
-            print("l1 pos : " +  sk1[0].start.transform.position );
-            List<LineController> sk2 = skeletons[1]; 
-            print("l2 pos : " +  sk2[0].start.transform.position );
-        }
-        if(Input.GetKeyDown(KeyCode.O)){
-            for (int i = 0 ; i < lines.Count ; i++ ){
-                if ( i == 0 ){
-                    lines[i].start.transform.position = lines[i].start.transform.position + new Vector3(1,1,0);
-                    lines[i].end.transform.position   = lines[i].end.transform.position + new Vector3(1,1,0);                    
-                }else{
-                    lines[i].end.transform.position   = lines[i].end.transform.position + new Vector3(1,1,0);
-                } 
-            }
-        }
-        if(Input.GetKeyDown(KeyCode.M)){
-            move = !move;           
-        }
         if(move){
             if(k >= 1.0f){
                 k = 0.0f;
             }
             k = k + 0.0001f ;
+            // skeletons.Reverse();
             List<LineController> sk1 = skeletons[0]; 
             List<LineController> sk2 = skeletons[1]; 
             
@@ -190,56 +176,93 @@ public class PenTool : MonoBehaviour
 
             }
         }
-
+        if(moveSkeleton2){
+            maxDot.onDragMoveEvent += MoveMaxDot;
+        }
+        if(Input.GetKeyDown(KeyCode.R)){
+            print("RRRRRRRRRRRRRRRRRRR  : " + moveSkeleton2);
+            moveSkeleton2 = !moveSkeleton2 ;
+            if(moveSkeleton2 ==  false){
+                Image dotSpriteRenderer = maxDot.GetComponent<Image>();
+                dotSpriteRenderer.color = color;
+                maxDot.onDragMoveEvent = null;
+            }
+        }
+        if(Input.GetKeyDown(KeyCode.M)){
+            move = !move;           
+            for(int i = 0 ; i < copyLines.Count ; i++){
+                copyLines[i].lr.enabled = false;
+                copyLines[i].start.GetComponent<Image>().enabled = false;
+                copyLines[i].end.GetComponent<Image>().enabled = false;
+            }
+        }
         if(Input.GetKeyDown(KeyCode.F)){
             print("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
-            // finish = false;
+            skeletons.Add(copyLines);
         }
         if(Input.GetKeyDown(KeyCode.K)){
             print("KKKKKKKKKKKKKKKKKKKKKKKKKKKKK");
-            List<LineController> copyLines = new List<LineController>();
-            // if(finish) {
-                foreach(LineController line in lines){
-                    line.lr.enabled = false;
-                    line.start.GetComponent<Image>().enabled = false;
-                    line.end.GetComponent<Image>().enabled = false;
-                    LineController l = line.Clone(dotPrefab,dotParent); 
-                    l = Instantiate (lineprefab , Vector3.zero , Quaternion.identity , lineParent).GetComponent<LineController>(); ; 
-                    l.id = line.id  ;  
-                    l.start = Instantiate(dotPrefab , line.start.transform.position, Quaternion.identity, dotParent).GetComponent<DotController>();
-                    l.start.id = line.start.id;
-                    l.start.onDragEvent = line.start.onDragEvent;
-                    l.start.OnRightClickEvent = line.start.OnRightClickEvent;
-                    l.start.OnLeftClickEvent = line.start.OnLeftClickEvent;
-                    l.end   = Instantiate(dotPrefab , line.end.transform.position, Quaternion.identity, dotParent).GetComponent<DotController>();
-                    l.end.id = line.end.id;
-                    l.end.onDragEvent = line.end.onDragEvent;
-                    l.end.OnRightClickEvent = line.end.OnRightClickEvent;
-                    l.end.OnLeftClickEvent = line.end.OnLeftClickEvent;
-                    l.SetStart(l.start,l.start.id) ;
-                    l.SetEnd(l.end , l.end.id) ;
-
-                    copyLines.Add(l);
+            copyLines = new List<LineController>();
+            Dictionary<int, DotController> dotsDictionary = new Dictionary<int, DotController>();
+            foreach(LineController line in lines){
+                if(!dotsDictionary.ContainsKey(line.start.id)){
+                    DotController dodo = Instantiate(dotPrefab , line.start.transform.position, Quaternion.identity, dotParent).GetComponent<DotController>();
+                    dodo.id = line.start.id;
+                    dodo.onDragEvent = line.start.onDragEvent;
+                    dodo.OnRightClickEvent = line.start.OnRightClickEvent;
+                    dodo.OnLeftClickEvent =  line.start.OnLeftClickEvent;
+                    dotsDictionary[dodo.id]=dodo;
                 }
-            // }
-            // linesTemp = new List<LineController>(lines);
-            skeletons.Add(copyLines);
-            // lines.Clear();
-            print("skelton size " + skeletons.Count );
+                if(!dotsDictionary.ContainsKey(line.end.id)){
+                    DotController dodo = Instantiate(dotPrefab , line.end.transform.position, Quaternion.identity, dotParent).GetComponent<DotController>();
+                    dodo.id = line.end.id;
+                    dodo.onDragEvent = line.end.onDragEvent;
+                    dodo.OnRightClickEvent = line.end.OnRightClickEvent;
+                    dodo.OnLeftClickEvent =  line.end.OnLeftClickEvent;
+                    dotsDictionary[dodo.id]=dodo;
+                }
+            }
+            maxDot = Instantiate(dotPrefab , new Vector3(0,-99999999999,0), Quaternion.identity, dotParent).GetComponent<DotController>();
+            for (int i = 0; i < lines.Count; i++){
+                if ( ( lines[i].start.transform.position.y > maxDot.transform.position.y) || ( lines[i].end.transform.position.y > maxDot.transform.position.y ) ) {
+                    if(lines[i].start.transform.position.y>=lines[i].end.transform.position.y){
+                        maxDot = dotsDictionary[lines[i].start.id];
+                    }else{
+                        maxDot = dotsDictionary[lines[i].end.id];
+                    }
+                }
+                lines[i].lr.enabled = false;
+                lines[i].start.GetComponent<Image>().enabled = false;
+                lines[i].end.GetComponent<Image>().enabled = false;
+                LineController l = lines[i].Clone(); 
+                l = Instantiate (lineprefab , Vector3.zero , Quaternion.identity , lineParent).GetComponent<LineController>(); ; 
+                l.id = lines[i].id  ;  
 
-            // DotController maxDot = Instantiate(dotPrefab , new Vector3(0,-99999999999,0), Quaternion.identity, dotParent).GetComponent<DotController>();
-            // for (int i = 0; i < lines.Count; i++){
-            //     if ( ( lines[i].start.transform.position.y > maxDot.transform.position.y) || ( lines[i].end.transform.position.y > maxDot.transform.position.y ) ) {
-            //         if(lines[i].start.transform.position.y>=lines[i].end.transform.position.y){
-            //             maxDot = lines[i].start;
-            //         }else{
-            //             maxDot = lines[i].end;
-            //         }
-            //     }
-            // }
-            // Image dotSpriteRenderer = maxDot.GetComponent<Image>();
-            // dotSpriteRenderer.color = Color.blue;
+                l.start = dotsDictionary[lines[i].start.id];
+                l.start.id = dotsDictionary[lines[i].start.id].id;
+                l.start.onDragEvent = dotsDictionary[lines[i].start.id].onDragEvent;
+                l.start.OnRightClickEvent = dotsDictionary[lines[i].start.id].OnRightClickEvent;
+                l.start.OnLeftClickEvent =  dotsDictionary[lines[i].start.id].OnLeftClickEvent;
 
+                l.end   = dotsDictionary[lines[i].end.id];
+                l.end.id =  dotsDictionary[lines[i].end.id].id;
+                l.end.onDragEvent =  dotsDictionary[lines[i].end.id].onDragEvent;
+                l.end.OnRightClickEvent =  dotsDictionary[lines[i].end.id].OnRightClickEvent;
+                l.end.OnLeftClickEvent =  dotsDictionary[lines[i].end.id].OnLeftClickEvent;
+                l.SetStart(l.start , l.start.id) ;
+                l.SetEnd(l.end , l.end.id) ;
+                copyLines.Add(l);   
+            }
+            skeletons.Add(lines);
+
+            Image dotSpriteRenderer = maxDot.GetComponent<Image>();
+            color = dotSpriteRenderer.color;
+            dotSpriteRenderer.color = Color.blue;
+            if(soso){
+                soso = false;
+                prevX = maxDot.transform.position.x;
+                prevY = maxDot.transform.position.y;
+            }
             counter = 0 ;
             pupId = 0 ;
             lineCounter = 0 ;
@@ -311,6 +334,33 @@ public class PenTool : MonoBehaviour
         
     }
 
+    private void MoveMaxDot(DotController dot) {
+        print("MoveMaxDot");
+        Vector3 mousePos = GetMousePosition();
+        if (
+            mousePos.x <=  0.1f  || 
+            mousePos.x >=  9.9f  || 
+            mousePos.y >= -0.1f  || 
+            mousePos.y <= -7.4 
+        ){ 
+            dot.transform.position = dot.transform.position; 
+        }else{
+            dot.transform.position = mousePos; 
+        }
+        dX    = dot.transform.position.x - prevX;
+        dY    = dot.transform.position.y - prevY;
+        prevX = dot.transform.position.x; 
+        prevY = dot.transform.position.y;
+        for(int i = 0 ; i < copyLines.Count ; i++){
+            if ( i == 0 ){
+                copyLines[i].start.transform.position = new Vector3(copyLines[i].start.transform.position.x+ dX , copyLines[i].start.transform.position.y + dY , 0 ); 
+                copyLines[i].end.transform.position   = new Vector3(copyLines[i].end.transform.position.x  + dX , copyLines[i].end.transform.position.y   + dY , 0 );                   
+            }else{
+                copyLines[i].end.transform.position   = new Vector3(copyLines[i].end.transform.position.x  + dX , copyLines[i].end.transform.position.y   + dY , 0 );                   
+            }
+        }
+    }
+
     private void SelectDot(DotController selectedDot) {
         print("Selected dot id  : " +  selectedDot.id);
         print("Selected position  : " +  selectedDot.transform.position);
@@ -366,3 +416,27 @@ public class PenTool : MonoBehaviour
     }
     
 }
+/*
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.S))
+            {
+                string screenshotFilename = "screenshot.png";
+                StartCoroutine(TakeScreenshot(screenshotFilename));
+            }
+        }
+
+        private System.Collections.IEnumerator TakeScreenshot(string filename)
+        {
+            yield return new WaitForEndOfFrame();
+
+            Texture2D screenshotTexture = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
+            screenshotTexture.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
+            screenshotTexture.Apply();
+
+            byte[] screenshotBytes = screenshotTexture.EncodeToPNG();
+            System.IO.File.WriteAllBytes(filename, screenshotBytes);
+
+            Debug.Log("Screenshot captured and saved as " + filename);
+        }
+*/
