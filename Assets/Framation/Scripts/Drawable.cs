@@ -7,7 +7,6 @@ namespace Framation
     using System.Collections;
     using System.Collections.Generic;
     using OpenCvSharp;
-    using Newtonsoft.Json;
     using mattatz.Triangulation2DSystem;
     using mattatz.Triangulation2DSystem.Example;
 

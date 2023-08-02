@@ -1402,8 +1402,15 @@ MonoBehaviour:
     m_Bits: 256
   Reset_Canvas_On_Play: 1
   Reset_Colour: {r: 1, g: 1, b: 1, a: 1}
-  globalMesh: {fileID: 0}
+  points: []
+  triangles: []
+  uv: []
   materialToModify: {fileID: 2100000, guid: 7e54230c159c7924abe13a23c125c1e2, type: 2}
+  globalMesh: {fileID: 0}
+  link: {fileID: 0}
+  moveMesh: 0
+  isDrawing: 1
+  DrawTriangulation: 0
 --- !u!212 &975978399
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -2349,6 +2356,7 @@ MonoBehaviour:
   dotParent: {fileID: 1934466518}
   lineprefab: {fileID: 3554804613065760184, guid: 9591db889db1de04da3232248863ced5, type: 3}
   lineParent: {fileID: 0}
+  textureVertices: []
 --- !u!114 &2136671347
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2388,7 +2396,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!223 &2136671349
 Canvas:
   m_ObjectHideFlags: 0
